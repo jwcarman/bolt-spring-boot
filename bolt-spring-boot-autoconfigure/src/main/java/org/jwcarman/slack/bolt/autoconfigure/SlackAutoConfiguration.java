@@ -61,10 +61,7 @@ public class SlackAutoConfiguration {
   @Bean
   public AppConfig appConfig(SlackProperties props) {
     AppConfig.AppConfigBuilder builder =
-        AppConfig.builder()
-            .signingSecret(props.getSigningSecret())
-            .scope(props.getScope())
-            .userScope(props.getUserScope());
+        AppConfig.builder().signingSecret(props.getSigningSecret());
 
     if (props.getBotToken() != null) {
       log.info("Configuring Slack Bolt in single-team mode");
@@ -74,6 +71,8 @@ public class SlackAutoConfiguration {
       builder
           .clientId(props.getClientId())
           .clientSecret(props.getClientSecret())
+          .scope(props.getScope())
+          .userScope(props.getUserScope())
           .oauthInstallPath(props.getOauthInstallPath())
           .oauthRedirectUriPath(props.getOauthRedirectUriPath())
           .oauthCompletionUrl(props.getOauthCompletionUrl())

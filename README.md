@@ -61,6 +61,16 @@ For more details, see the [Slack Bolt for Java getting started guide](https://do
 
 ### 1. Configure your Slack app
 
+**Single-team mode** (one workspace, simple setup):
+
+```yaml
+slack:
+  bot-token: ${SLACK_BOT_TOKEN}
+  signing-secret: ${SLACK_SIGNING_SECRET}
+```
+
+**OAuth mode** (multi-workspace distribution):
+
 ```yaml
 slack:
   client-id: ${SLACK_CLIENT_ID}
@@ -68,6 +78,8 @@ slack:
   signing-secret: ${SLACK_SIGNING_SECRET}
   scope: app_mentions:read,channels:history,chat:write,commands
 ```
+
+The starter auto-detects the mode based on which properties are present.
 
 ### 2. Create a handler
 
@@ -146,16 +158,19 @@ All properties are under the `slack.*` prefix:
 
 | Property | Default | Description |
 |---|---|---|
-| `slack.client-id` | | OAuth client ID (required) |
-| `slack.client-secret` | | OAuth client secret (required) |
-| `slack.signing-secret` | | Request signing secret (required) |
+| `slack.signing-secret` | | Request signing secret (required for both modes) |
+| `slack.bot-token` | | Bot token for single-team mode |
+| `slack.client-id` | | OAuth client ID (OAuth mode) |
+| `slack.client-secret` | | OAuth client secret (OAuth mode) |
 | `slack.scope` | | Bot token scopes |
 | `slack.user-scope` | | User token scopes |
 | `slack.events-path` | `/slack/events` | Servlet path for events and interactions |
-| `slack.oauth-install-path` | `/slack/install` | OAuth install initiation path |
-| `slack.oauth-redirect-uri-path` | `/slack/oauth_redirect` | OAuth redirect callback path |
-| `slack.oauth-completion-url` | | Redirect URL after successful install |
-| `slack.oauth-cancellation-url` | | Redirect URL after cancelled install |
+| `slack.oauth-install-path` | `/slack/install` | OAuth install initiation path (OAuth mode only) |
+| `slack.oauth-redirect-uri-path` | `/slack/oauth_redirect` | OAuth redirect callback path (OAuth mode only) |
+| `slack.oauth-completion-url` | | Redirect URL after successful install (OAuth mode only) |
+| `slack.oauth-cancellation-url` | | Redirect URL after cancelled install (OAuth mode only) |
+
+**Mode detection:** If `slack.bot-token` is set, the app runs in single-team mode. Otherwise, `slack.client-id` and `slack.client-secret` are used for OAuth mode. Both modes require `slack.signing-secret`.
 
 ## Programmatic Customization
 
