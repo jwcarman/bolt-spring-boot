@@ -21,9 +21,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
@@ -34,21 +33,15 @@ class ChannelIdResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getChannelId()).thenReturn("C12345");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannelId()).thenReturn("C12345");
     assertThat(resolver.resolve(req, null)).isEqualTo("C12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    BlockActionRequest req = mock(BlockActionRequest.class);
-    BlockActionPayload payload = mock(BlockActionPayload.class);
-    BlockActionPayload.Channel channel = new BlockActionPayload.Channel();
-    channel.setId("C67890");
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getChannel()).thenReturn(channel);
+    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("C67890");
   }
 

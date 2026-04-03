@@ -20,9 +20,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
@@ -32,19 +31,15 @@ class TriggerIdResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getTriggerId()).thenReturn("TR12345");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTriggerId()).thenReturn("TR12345");
     assertThat(resolver.resolve(req, null)).isEqualTo("TR12345");
   }
 
   @Test
   void extractsFromViewSubmission() {
-    ViewSubmissionRequest req = mock(ViewSubmissionRequest.class);
-    ViewSubmissionPayload payload = mock(ViewSubmissionPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getTriggerId()).thenReturn("TR67890");
+    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTriggerId()).thenReturn("TR67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("TR67890");
   }
 }

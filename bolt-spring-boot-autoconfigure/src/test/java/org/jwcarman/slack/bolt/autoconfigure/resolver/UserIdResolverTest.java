@@ -20,9 +20,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -32,21 +31,15 @@ class UserIdResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getUserId()).thenReturn("U12345");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUserId()).thenReturn("U12345");
     assertThat(resolver.resolve(req, null)).isEqualTo("U12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    BlockActionRequest req = mock(BlockActionRequest.class);
-    BlockActionPayload payload = mock(BlockActionPayload.class);
-    BlockActionPayload.User user = new BlockActionPayload.User();
-    user.setId("U67890");
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getUser()).thenReturn(user);
+    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getId()).thenReturn("U67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("U67890");
   }
 }

@@ -21,8 +21,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -32,10 +32,8 @@ class CommandTextResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getText()).thenReturn("hello world");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getText()).thenReturn("hello world");
     assertThat(resolver.resolve(req, null)).isEqualTo("hello world");
   }
 

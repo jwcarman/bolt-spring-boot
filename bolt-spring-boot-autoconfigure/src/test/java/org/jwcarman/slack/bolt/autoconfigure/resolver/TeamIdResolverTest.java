@@ -20,9 +20,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -32,21 +31,15 @@ class TeamIdResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getTeamId()).thenReturn("T12345");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeamId()).thenReturn("T12345");
     assertThat(resolver.resolve(req, null)).isEqualTo("T12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    BlockActionRequest req = mock(BlockActionRequest.class);
-    BlockActionPayload payload = mock(BlockActionPayload.class);
-    BlockActionPayload.Team team = new BlockActionPayload.Team();
-    team.setId("T67890");
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getTeam()).thenReturn(team);
+    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("T67890");
   }
 }

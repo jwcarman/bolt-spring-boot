@@ -21,9 +21,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
@@ -34,19 +33,15 @@ class ResponseUrlResolverTest {
 
   @Test
   void extractsFromSlashCommand() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
-    SlashCommandPayload payload = mock(SlashCommandPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getResponseUrl()).thenReturn("https://hooks.slack.com/commands/123");
+    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/commands/123");
     assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/commands/123");
   }
 
   @Test
   void extractsFromBlockAction() {
-    BlockActionRequest req = mock(BlockActionRequest.class);
-    BlockActionPayload payload = mock(BlockActionPayload.class);
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getResponseUrl()).thenReturn("https://hooks.slack.com/actions/456");
+    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/actions/456");
     assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/actions/456");
   }
 
