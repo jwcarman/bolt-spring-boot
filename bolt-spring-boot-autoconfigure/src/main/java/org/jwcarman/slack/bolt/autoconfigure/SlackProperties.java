@@ -5,14 +5,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "slack")
 public class SlackProperties {
 
+  public static final String DEFAULT_EVENTS_PATH = "/slack/events";
+  public static final String DEFAULT_OAUTH_INSTALL_PATH = "/slack/install";
+  public static final String DEFAULT_OAUTH_REDIRECT_URI_PATH = "/slack/oauth_redirect";
+
   private String clientId;
   private String clientSecret;
   private String signingSecret;
   private String scope;
   private String userScope;
-  private String eventsPath = "/slack/events";
-  private String oauthInstallPath = "/slack/install";
-  private String oauthRedirectUriPath = "/slack/oauth_redirect";
+  private String eventsPath = DEFAULT_EVENTS_PATH;
+  private String oauthInstallPath = DEFAULT_OAUTH_INSTALL_PATH;
+  private String oauthRedirectUriPath = DEFAULT_OAUTH_REDIRECT_URI_PATH;
   private String oauthCompletionUrl;
   private String oauthCancellationUrl;
 

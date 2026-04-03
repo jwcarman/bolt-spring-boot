@@ -46,8 +46,10 @@ class SlackPropertiesTest {
   @Test
   void hasDefaults() {
     SlackProperties defaults = new SlackProperties();
-    assertThat(defaults.getEventsPath()).isEqualTo("/slack/events");
-    assertThat(defaults.getOauthInstallPath()).isEqualTo("/slack/install");
-    assertThat(defaults.getOauthRedirectUriPath()).isEqualTo("/slack/oauth_redirect");
+    assertThat(defaults.getEventsPath()).isEqualTo(SlackProperties.DEFAULT_EVENTS_PATH);
+    assertThat(defaults.getOauthInstallPath())
+        .isEqualTo(SlackProperties.DEFAULT_OAUTH_INSTALL_PATH);
+    assertThat(defaults.getOauthRedirectUriPath())
+        .isEqualTo(SlackProperties.DEFAULT_OAUTH_REDIRECT_URI_PATH);
   }
 }
