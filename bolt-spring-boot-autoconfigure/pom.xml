@@ -28,6 +28,8 @@
     </parent>
 
     <artifactId>bolt-spring-boot-autoconfigure</artifactId>
+    <name>Bolt Spring Boot - Autoconfigure</name>
+    <description>Auto-configuration for the Slack Bolt Spring Boot starter</description>
 
     <dependencies>
         <dependency>

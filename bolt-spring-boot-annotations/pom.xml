@@ -28,6 +28,8 @@
     </parent>
 
     <artifactId>bolt-spring-boot-annotations</artifactId>
+    <name>Bolt Spring Boot - Annotations</name>
+    <description>Annotation definitions for the Slack Bolt Spring Boot starter</description>
 
     <build>
         <plugins>
