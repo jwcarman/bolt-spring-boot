@@ -27,9 +27,8 @@ import org.springframework.stereotype.Component;
  * Stereotype annotation for Spring beans that contain Slack Bolt handler methods.
  *
  * <p>This is a specialization of {@link org.springframework.stereotype.Component @Component}, so
- * annotated classes are automatically registered as Spring beans. The {@link
- * AnnotationDrivenAppCustomizer} scans beans with this annotation for handler methods like {@link
- * SlashCommand @SlashCommand}, {@link BlockAction @BlockAction}, etc.
+ * annotated classes are automatically registered as Spring beans. Beans with this annotation are
+ * scanned for handler methods like {@code @SlashCommand}, {@code @BlockAction}, etc.
  *
  * @see SlashCommand
  * @see Event
@@ -40,7 +39,11 @@ import org.springframework.stereotype.Component;
 @Component
 public @interface SlackController {
 
-  /** The value may indicate a suggestion for a logical component name. */
+  /**
+   * The value may indicate a suggestion for a logical component name.
+   *
+   * @return the suggested component name, or empty string
+   */
   @AliasFor(annotation = Component.class)
   String value() default "";
 }

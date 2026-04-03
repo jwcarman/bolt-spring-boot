@@ -22,6 +22,12 @@ package org.jwcarman.slack.bolt.autoconfigure;
  */
 public class SlackHandlerInvocationException extends RuntimeException {
 
+  /**
+   * Creates a new exception with the given message and cause.
+   *
+   * @param message the detail message
+   * @param cause the underlying cause
+   */
   public SlackHandlerInvocationException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -64,6 +64,8 @@
 
         <!-- Dependency Versions -->
         <spring-boot.version>4.0.5</spring-boot.version>
+        <slack-sdk.version>1.48.0</slack-sdk.version>
+        <junit-bom.version>6.0.3</junit-bom.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <required.maven.version>3.8</required.maven.version>
 
@@ -82,7 +84,7 @@
         <sonatype.plugin.version>0.10.0</sonatype.plugin.version>
         <source.plugin.version>3.4.0</source.plugin.version>
         <surefire.plugin.version>3.5.5</surefire.plugin.version>
-        <spotless.plugin.version>3.3.0</spotless.plugin.version>
+        <spotless.plugin.version>3.4.0</spotless.plugin.version>
         <google-java-format.version>1.35.0</google-java-format.version>
         <license.plugin.version>5.0.0</license.plugin.version>
 
@@ -110,19 +112,24 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.0.3</version>
+                <version>${junit-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.slack.api</groupId>
+                <artifactId>bolt</artifactId>
+                <version>${slack-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.slack.api</groupId>
                 <artifactId>bolt-jakarta-servlet</artifactId>
-                <version>1.48.0</version>
+                <version>${slack-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.slack.api</groupId>
                 <artifactId>slack-api-model</artifactId>
-                <version>1.48.0</version>
+                <version>${slack-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jwcarman.slack</groupId>

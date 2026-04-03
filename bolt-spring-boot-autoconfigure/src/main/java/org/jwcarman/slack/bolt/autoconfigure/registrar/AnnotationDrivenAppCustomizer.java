@@ -57,6 +57,11 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
 
   private final ApplicationContext applicationContext;
 
+  /**
+   * Creates a new customizer that scans the given application context for controller beans.
+   *
+   * @param applicationContext the Spring application context used to discover controller beans
+   */
   public AnnotationDrivenAppCustomizer(ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }

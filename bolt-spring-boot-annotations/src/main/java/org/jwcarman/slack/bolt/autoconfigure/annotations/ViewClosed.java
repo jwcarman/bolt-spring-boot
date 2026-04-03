@@ -30,6 +30,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewClosed {
-  /** The callback ID to handle. */
+  /**
+   * The callback ID to handle.
+   *
+   * @return the callback ID
+   */
   String value();
 }

@@ -30,6 +30,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SlashCommand {
-  /** The slash command to handle (e.g., {@code "/deploy"}). */
+  /**
+   * The slash command to handle (e.g., {@code "/deploy"}).
+   *
+   * @return the slash command pattern
+   */
   String value();
 }

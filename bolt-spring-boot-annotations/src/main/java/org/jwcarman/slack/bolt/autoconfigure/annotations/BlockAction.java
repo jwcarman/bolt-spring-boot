@@ -31,6 +31,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BlockAction {
-  /** The action ID to handle. */
+  /**
+   * The action ID to handle.
+   *
+   * @return the action ID
+   */
   String value();
 }

@@ -47,6 +47,15 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
     name = {"client-id", "client-secret", "signing-secret"})
 public class SlackAutoConfiguration {
 
+  /** Creates a new {@code SlackAutoConfiguration}. */
+  public SlackAutoConfiguration() {}
+
+  /**
+   * Creates the Bolt {@link AppConfig} from the bound {@link SlackProperties}.
+   *
+   * @param props the Slack configuration properties
+   * @return the configured {@link AppConfig}
+   */
   @Bean
   public AppConfig appConfig(SlackProperties props) {
     return AppConfig.builder()
@@ -62,6 +71,13 @@ public class SlackAutoConfiguration {
         .build();
   }
 
+  /**
+   * Creates and initializes the Bolt {@link App}, applying all registered customizers.
+   *
+   * @param config the Bolt application configuration
+   * @param customizers the list of customizers to apply
+   * @return the configured {@link App}
+   */
   @Bean
   public App slackApp(AppConfig config, List<SlackAppCustomizer> customizers) {
     App app = new App(config).asOAuthApp(true);
@@ -69,18 +85,38 @@ public class SlackAutoConfiguration {
     return app;
   }
 
+  /**
+   * Creates the annotation-driven customizer that registers handler methods.
+   *
+   * @param applicationContext the Spring application context
+   * @return the annotation-driven customizer
+   */
   @Bean
   public AnnotationDrivenAppCustomizer annotationDrivenAppCustomizer(
       ApplicationContext applicationContext) {
     return new AnnotationDrivenAppCustomizer(applicationContext);
   }
 
+  /**
+   * Registers the Slack events servlet at the configured events path.
+   *
+   * @param app the Bolt application
+   * @param props the Slack configuration properties
+   * @return the servlet registration bean
+   */
   @Bean
   public ServletRegistrationBean<SlackAppServlet> slackEventsServlet(
       App app, SlackProperties props) {
     return new ServletRegistrationBean<>(new SlackAppServlet(app), props.getEventsPath());
   }
 
+  /**
+   * Registers the Slack OAuth servlet at the configured install and redirect paths.
+   *
+   * @param app the Bolt application
+   * @param props the Slack configuration properties
+   * @return the servlet registration bean
+   */
   @Bean
   public ServletRegistrationBean<SlackOAuthAppServlet> slackOAuthServlet(
       App app, SlackProperties props) {

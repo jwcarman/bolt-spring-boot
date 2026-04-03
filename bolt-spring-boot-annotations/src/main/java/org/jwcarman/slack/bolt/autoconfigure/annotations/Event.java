@@ -30,6 +30,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Event {
-  /** The event type to handle (e.g., {@code AppMentionEvent.class}). */
+  /**
+   * The event type to handle (e.g., {@code AppMentionEvent.class}).
+   *
+   * @return the event type class
+   */
   Class<? extends com.slack.api.model.event.Event> value();
 }

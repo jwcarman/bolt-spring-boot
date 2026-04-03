@@ -31,6 +31,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Message {
-  /** The regex pattern to match against message text. */
+  /**
+   * The regex pattern to match against message text.
+   *
+   * @return the regex pattern
+   */
   String value();
 }

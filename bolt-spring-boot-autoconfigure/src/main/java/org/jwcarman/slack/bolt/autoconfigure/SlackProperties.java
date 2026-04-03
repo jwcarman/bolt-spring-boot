@@ -26,8 +26,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "slack")
 public class SlackProperties {
 
+  /** Creates a new {@code SlackProperties} with default values. */
+  public SlackProperties() {}
+
+  /** Default servlet path for Slack events. */
   public static final String DEFAULT_EVENTS_PATH = "/slack/events";
+
+  /** Default servlet path for the OAuth install endpoint. */
   public static final String DEFAULT_OAUTH_INSTALL_PATH = "/slack/install";
+
+  /** Default servlet path for the OAuth redirect URI. */
   public static final String DEFAULT_OAUTH_REDIRECT_URI_PATH = "/slack/oauth_redirect";
 
   private String clientId;
@@ -41,82 +49,182 @@ public class SlackProperties {
   private String oauthCompletionUrl;
   private String oauthCancellationUrl;
 
+  /**
+   * Returns the Slack app client ID.
+   *
+   * @return the client ID
+   */
   public String getClientId() {
     return clientId;
   }
 
+  /**
+   * Sets the Slack app client ID.
+   *
+   * @param clientId the client ID
+   */
   public void setClientId(String clientId) {
     this.clientId = clientId;
   }
 
+  /**
+   * Returns the Slack app client secret.
+   *
+   * @return the client secret
+   */
   public String getClientSecret() {
     return clientSecret;
   }
 
+  /**
+   * Sets the Slack app client secret.
+   *
+   * @param clientSecret the client secret
+   */
   public void setClientSecret(String clientSecret) {
     this.clientSecret = clientSecret;
   }
 
+  /**
+   * Returns the Slack app signing secret.
+   *
+   * @return the signing secret
+   */
   public String getSigningSecret() {
     return signingSecret;
   }
 
+  /**
+   * Sets the Slack app signing secret.
+   *
+   * @param signingSecret the signing secret
+   */
   public void setSigningSecret(String signingSecret) {
     this.signingSecret = signingSecret;
   }
 
+  /**
+   * Returns the OAuth scope.
+   *
+   * @return the scope
+   */
   public String getScope() {
     return scope;
   }
 
+  /**
+   * Sets the OAuth scope.
+   *
+   * @param scope the scope
+   */
   public void setScope(String scope) {
     this.scope = scope;
   }
 
+  /**
+   * Returns the OAuth user scope.
+   *
+   * @return the user scope
+   */
   public String getUserScope() {
     return userScope;
   }
 
+  /**
+   * Sets the OAuth user scope.
+   *
+   * @param userScope the user scope
+   */
   public void setUserScope(String userScope) {
     this.userScope = userScope;
   }
 
+  /**
+   * Returns the servlet path for Slack events.
+   *
+   * @return the events path
+   */
   public String getEventsPath() {
     return eventsPath;
   }
 
+  /**
+   * Sets the servlet path for Slack events.
+   *
+   * @param eventsPath the events path
+   */
   public void setEventsPath(String eventsPath) {
     this.eventsPath = eventsPath;
   }
 
+  /**
+   * Returns the servlet path for the OAuth install endpoint.
+   *
+   * @return the OAuth install path
+   */
   public String getOauthInstallPath() {
     return oauthInstallPath;
   }
 
+  /**
+   * Sets the servlet path for the OAuth install endpoint.
+   *
+   * @param oauthInstallPath the OAuth install path
+   */
   public void setOauthInstallPath(String oauthInstallPath) {
     this.oauthInstallPath = oauthInstallPath;
   }
 
+  /**
+   * Returns the servlet path for the OAuth redirect URI.
+   *
+   * @return the OAuth redirect URI path
+   */
   public String getOauthRedirectUriPath() {
     return oauthRedirectUriPath;
   }
 
+  /**
+   * Sets the servlet path for the OAuth redirect URI.
+   *
+   * @param oauthRedirectUriPath the OAuth redirect URI path
+   */
   public void setOauthRedirectUriPath(String oauthRedirectUriPath) {
     this.oauthRedirectUriPath = oauthRedirectUriPath;
   }
 
+  /**
+   * Returns the URL to redirect to after successful OAuth completion.
+   *
+   * @return the OAuth completion URL
+   */
   public String getOauthCompletionUrl() {
     return oauthCompletionUrl;
   }
 
+  /**
+   * Sets the URL to redirect to after successful OAuth completion.
+   *
+   * @param oauthCompletionUrl the OAuth completion URL
+   */
   public void setOauthCompletionUrl(String oauthCompletionUrl) {
     this.oauthCompletionUrl = oauthCompletionUrl;
   }
 
+  /**
+   * Returns the URL to redirect to after OAuth cancellation.
+   *
+   * @return the OAuth cancellation URL
+   */
   public String getOauthCancellationUrl() {
     return oauthCancellationUrl;
   }
 
+  /**
+   * Sets the URL to redirect to after OAuth cancellation.
+   *
+   * @param oauthCancellationUrl the OAuth cancellation URL
+   */
   public void setOauthCancellationUrl(String oauthCancellationUrl) {
     this.oauthCancellationUrl = oauthCancellationUrl;
   }
