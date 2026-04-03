@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
@@ -36,8 +37,8 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
  * Auto-configuration for the Slack Bolt framework. Creates and configures the Bolt {@link App},
  * registers event and OAuth servlets, and applies all {@link SlackAppCustomizer} beans.
  *
- * <p>Activated when {@code slack.client-id}, {@code slack.client-secret}, and {@code
- * slack.signing-secret} are all present in the environment.
+ * <p>Activated when {@code slack.signing-secret} is present. The mode (single-team vs OAuth) is
+ * determined by which additional properties are set.
  *
  * @see SlackProperties
  * @see SlackAppCustomizer
@@ -48,61 +49,6 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 public class SlackAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(SlackAutoConfiguration.class);
-
-  /**
-   * Creates the Bolt {@link AppConfig} from the bound {@link SlackProperties}.
-   *
-   * <p>When {@code slack.bot-token} is set, the app runs in single-team mode. When {@code
-   * slack.client-id} and {@code slack.client-secret} are set, the app runs in OAuth mode.
-   *
-   * @param props the Slack configuration properties
-   * @return the configured {@link AppConfig}
-   */
-  @Bean
-  public AppConfig appConfig(SlackProperties props) {
-    AppConfig.AppConfigBuilder builder =
-        AppConfig.builder().signingSecret(props.getSigningSecret());
-
-    if (props.getBotToken() != null) {
-      log.info("Configuring Slack Bolt in single-team mode");
-      builder.singleTeamBotToken(props.getBotToken());
-    } else {
-      log.info("Configuring Slack Bolt in OAuth mode");
-      builder
-          .clientId(props.getClientId())
-          .clientSecret(props.getClientSecret())
-          .scope(props.getScope())
-          .userScope(props.getUserScope())
-          .oauthInstallPath(props.getOauthInstallPath())
-          .oauthRedirectUriPath(props.getOauthRedirectUriPath())
-          .oauthCompletionUrl(props.getOauthCompletionUrl())
-          .oauthCancellationUrl(props.getOauthCancellationUrl());
-    }
-
-    return builder.build();
-  }
-
-  /**
-   * Creates and initializes the Bolt {@link App}, applying all registered customizers.
-   *
-   * <p>In OAuth mode, the app is configured as an OAuth app. In single-team mode, the app runs
-   * without OAuth.
-   *
-   * @param config the Bolt application configuration
-   * @param props the Slack configuration properties
-   * @param customizers the list of customizers to apply
-   * @return the configured {@link App}
-   */
-  @Bean
-  public App slackApp(
-      AppConfig config, SlackProperties props, List<SlackAppCustomizer> customizers) {
-    App app = new App(config);
-    if (props.getBotToken() == null) {
-      app.asOAuthApp(true);
-    }
-    customizers.forEach(c -> c.customize(app));
-    return app;
-  }
 
   /**
    * Creates the annotation-driven customizer that registers handler methods.
@@ -129,23 +75,101 @@ public class SlackAutoConfiguration {
     return new ServletRegistrationBean<>(new SlackAppServlet(app), props.getEventsPath());
   }
 
+  /** Single-team mode configuration, activated when {@code slack.bot-token} is set. */
+  @Configuration
+  @ConditionalOnProperty(prefix = "slack", name = "bot-token")
+  static class SingleTeamConfiguration {
+
+    /**
+     * Creates the Bolt {@link AppConfig} for single-team mode.
+     *
+     * @param props the Slack configuration properties
+     * @return the configured {@link AppConfig}
+     */
+    @Bean
+    public AppConfig appConfig(SlackProperties props) {
+      log.info("Configuring Slack Bolt in single-team mode");
+      return AppConfig.builder()
+          .signingSecret(props.getSigningSecret())
+          .singleTeamBotToken(props.getBotToken())
+          .build();
+    }
+
+    /**
+     * Creates the Bolt {@link App} for single-team mode.
+     *
+     * @param config the Bolt application configuration
+     * @param customizers the list of customizers to apply
+     * @return the configured {@link App}
+     */
+    @Bean
+    public App slackApp(AppConfig config, List<SlackAppCustomizer> customizers) {
+      App app = new App(config);
+      customizers.forEach(c -> c.customize(app));
+      return app;
+    }
+  }
+
   /**
-   * Registers the Slack OAuth servlet at the configured install and redirect paths. Only activated
-   * when OAuth properties are present (i.e., not in single-team bot token mode).
-   *
-   * @param app the Bolt application
-   * @param props the Slack configuration properties
-   * @return the servlet registration bean
+   * OAuth mode configuration, activated when {@code slack.client-id} and {@code
+   * slack.client-secret} are set.
    */
-  @Bean
+  @Configuration
   @ConditionalOnProperty(
       prefix = "slack",
       name = {"client-id", "client-secret"})
-  public ServletRegistrationBean<SlackOAuthAppServlet> slackOAuthServlet(
-      App app, SlackProperties props) {
-    return new ServletRegistrationBean<>(
-        new SlackOAuthAppServlet(app),
-        props.getOauthInstallPath(),
-        props.getOauthRedirectUriPath());
+  static class OAuthConfiguration {
+
+    /**
+     * Creates the Bolt {@link AppConfig} for OAuth mode.
+     *
+     * @param props the Slack configuration properties
+     * @return the configured {@link AppConfig}
+     */
+    @Bean
+    public AppConfig appConfig(SlackProperties props) {
+      log.info("Configuring Slack Bolt in OAuth mode");
+      return AppConfig.builder()
+          .clientId(props.getClientId())
+          .clientSecret(props.getClientSecret())
+          .signingSecret(props.getSigningSecret())
+          .scope(props.getScope())
+          .userScope(props.getUserScope())
+          .oauthInstallPath(props.getOauthInstallPath())
+          .oauthRedirectUriPath(props.getOauthRedirectUriPath())
+          .oauthCompletionUrl(props.getOauthCompletionUrl())
+          .oauthCancellationUrl(props.getOauthCancellationUrl())
+          .build();
+    }
+
+    /**
+     * Creates the Bolt {@link App} for OAuth mode.
+     *
+     * @param config the Bolt application configuration
+     * @param customizers the list of customizers to apply
+     * @return the configured {@link App}
+     */
+    @Bean
+    public App slackApp(AppConfig config, List<SlackAppCustomizer> customizers) {
+      App app = new App(config).asOAuthApp(true);
+      customizers.forEach(c -> c.customize(app));
+      return app;
+    }
+
+    /**
+     * Registers the Slack OAuth servlet at the configured install and redirect paths.
+     *
+     * @param app the Bolt application
+     * @param props the Slack configuration properties
+     * @return the servlet registration bean
+     */
+    @Bean
+    public ServletRegistrationBean<SlackOAuthAppServlet> slackOAuthServlet(
+        App app, SlackProperties props) {
+      return new ServletRegistrationBean<>(
+          new SlackOAuthAppServlet(app),
+          props.getOauthInstallPath(),
+          props.getOauthRedirectUriPath());
+    }
   }
 }
