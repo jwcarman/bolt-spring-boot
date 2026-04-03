@@ -1,5 +1,17 @@
 # Bolt Spring Boot Starter
 
+[![CI](https://github.com/jwcarman/bolt-spring-boot/actions/workflows/maven.yml/badge.svg)](https://github.com/jwcarman/bolt-spring-boot/actions/workflows/maven.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Java](https://img.shields.io/badge/dynamic/xml?url=https://raw.githubusercontent.com/jwcarman/bolt-spring-boot/main/pom.xml&query=//*[local-name()='java.version']/text()&label=Java&color=orange)](https://openjdk.org/)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jwcarman.slack/bolt-spring-boot-starter)](https://central.sonatype.com/artifact/org.jwcarman.slack/bolt-spring-boot-starter)
+
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jwcarman_bolt-spring-boot&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jwcarman_bolt-spring-boot)
+
 A Spring Boot starter that provides annotation-driven handler registration for the
 [Slack Bolt for Java](https://github.com/slackapi/java-slack-sdk) SDK. Build Slack apps with
 Spring Boot using simple annotations instead of manual `App` configuration.
