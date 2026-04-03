@@ -17,6 +17,8 @@ package org.jwcarman.slack.bolt.autoconfigure.registrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -315,6 +317,39 @@ class AnnotationDrivenAppCustomizerTest {
     SlashCommandHandler handler = (SlashCommandHandler) handlers.values().iterator().next();
 
     assertThatThrownBy(() -> handler.apply(null, null))
+        .isInstanceOf(SlackHandlerInvocationException.class)
+        .hasMessageContaining("handle")
+        .hasCauseInstanceOf(InvocationTargetException.class);
+  }
+
+  @SlackController
+  public static class ThrowingMessageHandler {
+    @Message("hello.*")
+    public Response handle(EventsApiPayload<MessageEvent> payload, EventContext ctx)
+        throws Exception {
+      throw new Exception("message failed");
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void shouldWrapCheckedExceptionFromMessageHandler() throws Exception {
+    App app = customizeWithBean(ThrowingMessageHandler.class);
+    Map<String, List<BoltEventHandler<com.slack.api.model.event.Event>>> handlers =
+        (Map<String, List<BoltEventHandler<com.slack.api.model.event.Event>>>)
+            (Map<?, ?>) getHandlerMap(app, "eventHandlers");
+    BoltEventHandler<com.slack.api.model.event.Event> handler =
+        handlers.values().iterator().next().get(0);
+
+    // Bolt's message() wrapper checks payload.getEvent().getText() before delegating,
+    // so we need a mock payload with matching text
+    MessageEvent messageEvent = new MessageEvent();
+    messageEvent.setText("hello world");
+    EventsApiPayload<com.slack.api.model.event.Event> payload =
+        (EventsApiPayload<com.slack.api.model.event.Event>) mock(EventsApiPayload.class);
+    when(payload.getEvent()).thenReturn(messageEvent);
+
+    assertThatThrownBy(() -> handler.apply(payload, null))
         .isInstanceOf(SlackHandlerInvocationException.class)
         .hasMessageContaining("handle")
         .hasCauseInstanceOf(InvocationTargetException.class);
