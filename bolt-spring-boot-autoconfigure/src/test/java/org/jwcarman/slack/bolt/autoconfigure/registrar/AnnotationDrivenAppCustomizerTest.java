@@ -17,8 +17,6 @@ package org.jwcarman.slack.bolt.autoconfigure.registrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -46,6 +44,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.app_backend.events.payload.EventsApiPayload;
+import com.slack.api.app_backend.events.payload.MessagePayload;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.context.builtin.ActionContext;
@@ -344,14 +343,16 @@ class AnnotationDrivenAppCustomizerTest {
         handlers.values().iterator().next().get(0);
 
     // Bolt's message() wrapper checks payload.getEvent().getText() before delegating,
-    // so we need a mock payload with matching text
+    // so we need a real payload with matching text
     MessageEvent messageEvent = new MessageEvent();
     messageEvent.setText("hello world");
-    EventsApiPayload<com.slack.api.model.event.Event> payload =
-        (EventsApiPayload<com.slack.api.model.event.Event>) mock(EventsApiPayload.class);
-    when(payload.getEvent()).thenReturn(messageEvent);
+    MessagePayload payload = new MessagePayload();
+    payload.setEvent(messageEvent);
 
-    assertThatThrownBy(() -> handler.apply(payload, null))
+    @SuppressWarnings("unchecked")
+    EventsApiPayload<com.slack.api.model.event.Event> typedPayload =
+        (EventsApiPayload<com.slack.api.model.event.Event>) (EventsApiPayload<?>) payload;
+    assertThatThrownBy(() -> handler.apply(typedPayload, null))
         .isInstanceOf(SlackHandlerInvocationException.class)
         .hasMessageContaining("handle")
         .hasCauseInstanceOf(InvocationTargetException.class);

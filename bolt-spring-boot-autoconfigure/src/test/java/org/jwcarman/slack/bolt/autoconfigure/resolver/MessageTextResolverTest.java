@@ -18,12 +18,11 @@ package org.jwcarman.slack.bolt.autoconfigure.resolver;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
 
-import com.slack.api.app_backend.events.payload.EventsApiPayload;
+import com.slack.api.app_backend.events.payload.AppMentionPayload;
+import com.slack.api.app_backend.events.payload.MessagePayload;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.model.event.AppMentionEvent;
 import com.slack.api.model.event.MessageEvent;
@@ -34,19 +33,19 @@ class MessageTextResolverTest {
 
   @Test
   void extractsFromMessageEvent() {
-    var payload = mock(EventsApiPayload.class, Answers.RETURNS_DEEP_STUBS);
     MessageEvent event = new MessageEvent();
     event.setText("hello from message");
-    when(payload.getEvent()).thenReturn(event);
+    MessagePayload payload = new MessagePayload();
+    payload.setEvent(event);
     assertThat(resolver.resolve(payload, null)).isEqualTo("hello from message");
   }
 
   @Test
   void extractsFromAppMentionEvent() {
-    var payload = mock(EventsApiPayload.class, Answers.RETURNS_DEEP_STUBS);
     AppMentionEvent event = new AppMentionEvent();
     event.setText("hey bot");
-    when(payload.getEvent()).thenReturn(event);
+    AppMentionPayload payload = new AppMentionPayload();
+    payload.setEvent(event);
     assertThat(resolver.resolve(payload, null)).isEqualTo("hey bot");
   }
 
