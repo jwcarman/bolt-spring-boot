@@ -30,7 +30,6 @@
     <artifactId>bolt-spring-boot-starter</artifactId>
     <name>Bolt Spring Boot - Starter</name>
     <description>Spring Boot starter for the Slack Bolt Java SDK</description>
-    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
