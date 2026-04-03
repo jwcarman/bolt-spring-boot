@@ -42,13 +42,14 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(SlackProperties.class)
-@ConditionalOnProperty(
-    prefix = "slack",
-    name = {"client-id", "client-secret", "signing-secret"})
+@ConditionalOnProperty(prefix = "slack", name = "signing-secret")
 public class SlackAutoConfiguration {
 
   /**
    * Creates the Bolt {@link AppConfig} from the bound {@link SlackProperties}.
+   *
+   * <p>When {@code slack.single-team-bot-token} is set, the app runs in single-workspace mode
+   * without OAuth. Otherwise, OAuth properties ({@code client-id}, {@code client-secret}) are used.
    *
    * @param props the Slack configuration properties
    * @return the configured {@link AppConfig}
@@ -71,7 +72,11 @@ public class SlackAutoConfiguration {
   /**
    * Creates and initializes the Bolt {@link App}, applying all registered customizers.
    *
+   * <p>In OAuth mode, the app is configured as an OAuth app. In single-team mode, the app runs
+   * without OAuth.
+   *
    * @param config the Bolt application configuration
+   * @param props the Slack configuration properties
    * @param customizers the list of customizers to apply
    * @return the configured {@link App}
    */
@@ -108,13 +113,17 @@ public class SlackAutoConfiguration {
   }
 
   /**
-   * Registers the Slack OAuth servlet at the configured install and redirect paths.
+   * Registers the Slack OAuth servlet at the configured install and redirect paths. Only activated
+   * when OAuth properties are present (i.e., not in single-team bot token mode).
    *
    * @param app the Bolt application
    * @param props the Slack configuration properties
    * @return the servlet registration bean
    */
   @Bean
+  @ConditionalOnProperty(
+      prefix = "slack",
+      name = {"client-id", "client-secret"})
   public ServletRegistrationBean<SlackOAuthAppServlet> slackOAuthServlet(
       App app, SlackProperties props) {
     return new ServletRegistrationBean<>(

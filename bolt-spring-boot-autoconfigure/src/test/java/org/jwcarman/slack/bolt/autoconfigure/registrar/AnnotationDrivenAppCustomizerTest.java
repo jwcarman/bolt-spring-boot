@@ -16,11 +16,14 @@
 package org.jwcarman.slack.bolt.autoconfigure.registrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.jwcarman.slack.bolt.autoconfigure.SlackHandlerInvocationException;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.AttachmentAction;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.BlockAction;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.BlockSuggestion;
@@ -52,6 +55,7 @@ import com.slack.api.bolt.context.builtin.GlobalShortcutContext;
 import com.slack.api.bolt.context.builtin.MessageShortcutContext;
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
@@ -265,6 +269,26 @@ class AnnotationDrivenAppCustomizerTest {
   void shouldRegisterAttachmentActionFromAnnotatedMethod() throws Exception {
     App app = customizeWithBean(TestAttachmentActionHandler.class);
     assertThat(getHandlerMap(app, "attachmentActionHandlers")).isNotEmpty();
+  }
+
+  @SlackController
+  public static class ThrowingSlashCommandHandler {
+    @SlashCommand("/throws")
+    public Response handle(SlashCommandRequest req, SlashCommandContext ctx) throws Exception {
+      throw new Exception("something went wrong");
+    }
+  }
+
+  @Test
+  void shouldWrapCheckedExceptionInSlackHandlerInvocationException() throws Exception {
+    App app = customizeWithBean(ThrowingSlashCommandHandler.class);
+    Map<?, ?> handlers = getHandlerMap(app, "slashCommandHandlers");
+    SlashCommandHandler handler = (SlashCommandHandler) handlers.values().iterator().next();
+
+    assertThatThrownBy(() -> handler.apply(null, null))
+        .isInstanceOf(SlackHandlerInvocationException.class)
+        .hasMessageContaining("handle")
+        .hasCauseInstanceOf(InvocationTargetException.class);
   }
 
   private App customizeWithBean(Class<?> handlerClass) {
