@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.SlackController;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.SlashCommand;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserId;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -82,11 +84,49 @@ class SlackAppIntegrationTest {
             });
   }
 
+  @Test
+  void annotatedOnlyParametersRegisterSuccessfully() {
+    contextRunner
+        .withUserConfiguration(AnnotatedOnlyHandlers.class)
+        .run(
+            context -> {
+              assertThat(context).hasSingleBean(App.class);
+              assertThat(context).hasBean("annotationDrivenAppCustomizer");
+            });
+  }
+
+  @Test
+  void mixedAnnotatedAndRawParametersRegisterSuccessfully() {
+    contextRunner
+        .withUserConfiguration(MixedHandlers.class)
+        .run(
+            context -> {
+              assertThat(context).hasSingleBean(App.class);
+              assertThat(context).hasBean("annotationDrivenAppCustomizer");
+            });
+  }
+
   @SlackController
   static class TestHandlers {
     @SlashCommand("/hello")
     public Response hello(SlashCommandRequest req, SlashCommandContext ctx) {
       return ctx.ack("Hello!");
+    }
+  }
+
+  @SlackController
+  static class AnnotatedOnlyHandlers {
+    @SlashCommand("/annotated")
+    public Response handle(@CommandText String text, @UserId String userId) {
+      return new Response();
+    }
+  }
+
+  @SlackController
+  static class MixedHandlers {
+    @SlashCommand("/mixed")
+    public Response handle(@CommandText String text, SlashCommandContext ctx) {
+      return new Response();
     }
   }
 
