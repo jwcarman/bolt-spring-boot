@@ -48,7 +48,9 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 public class SlackAutoConfiguration {
 
   /** Creates a new {@code SlackAutoConfiguration}. */
-  public SlackAutoConfiguration() {}
+  public SlackAutoConfiguration() {
+    // Intentionally empty — Spring instantiates this via reflection
+  }
 
   /**
    * Creates the Bolt {@link AppConfig} from the bound {@link SlackProperties}.

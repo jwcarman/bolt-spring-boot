@@ -27,7 +27,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class SlackProperties {
 
   /** Creates a new {@code SlackProperties} with default values. */
-  public SlackProperties() {}
+  public SlackProperties() {
+    // Intentionally empty — field defaults are declared inline
+  }
 
   /** Default servlet path for Slack events. */
   public static final String DEFAULT_EVENTS_PATH = "/slack/events";
