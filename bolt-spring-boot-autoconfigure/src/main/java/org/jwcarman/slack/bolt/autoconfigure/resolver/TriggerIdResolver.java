@@ -15,6 +15,7 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
 import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
@@ -37,6 +38,7 @@ public class TriggerIdResolver {
           case ViewSubmissionRequest r -> r.getPayload().getTriggerId();
           case GlobalShortcutRequest r -> r.getPayload().getTriggerId();
           case MessageShortcutRequest r -> r.getPayload().getTriggerId();
+          case AttachmentActionRequest r -> r.getPayload().getTriggerId();
           default ->
               throw new IllegalArgumentException(
                   "@TriggerId not supported for " + req.getClass().getSimpleName());

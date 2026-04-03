@@ -15,10 +15,16 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
 import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
 import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 public class UserIdResolver {
@@ -31,6 +37,12 @@ public class UserIdResolver {
           case ViewSubmissionRequest r -> r.getPayload().getUser().getId();
           case GlobalShortcutRequest r -> r.getPayload().getUser().getId();
           case MessageShortcutRequest r -> r.getPayload().getUser().getId();
+          case DialogSubmissionRequest r -> r.getPayload().getUser().getId();
+          case DialogSuggestionRequest r -> r.getPayload().getUser().getId();
+          case DialogCancellationRequest r -> r.getPayload().getUser().getId();
+          case AttachmentActionRequest r -> r.getPayload().getUser().getId();
+          case BlockSuggestionRequest r -> r.getPayload().getUser().getId();
+          case ViewClosedRequest r -> r.getPayload().getUser().getId();
           default ->
               throw new IllegalArgumentException(
                   "@UserId not supported for " + req.getClass().getSimpleName());

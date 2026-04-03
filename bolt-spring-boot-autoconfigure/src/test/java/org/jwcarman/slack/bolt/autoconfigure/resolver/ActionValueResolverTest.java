@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
@@ -34,12 +35,10 @@ class ActionValueResolverTest {
 
   @Test
   void extractsFromBlockAction() {
-    BlockActionRequest req = mock(BlockActionRequest.class);
-    BlockActionPayload payload = mock(BlockActionPayload.class);
-    BlockActionPayload.Action action = new BlockActionPayload.Action();
+    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    var action = new BlockActionPayload.Action();
     action.setValue("clicked_value");
-    when(req.getPayload()).thenReturn(payload);
-    when(payload.getActions()).thenReturn(List.of(action));
+    when(req.getPayload().getActions()).thenReturn(List.of(action));
     assertThat(resolver.resolve(req, null)).isEqualTo("clicked_value");
   }
 

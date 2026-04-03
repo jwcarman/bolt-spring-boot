@@ -23,7 +23,10 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
@@ -43,6 +46,27 @@ class ResponseUrlResolverTest {
     var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
     when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/actions/456");
     assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/actions/456");
+  }
+
+  @Test
+  void extractsFromDialogSubmission() {
+    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/dialog/111");
+    assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/dialog/111");
+  }
+
+  @Test
+  void extractsFromDialogCancellation() {
+    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/dialog/222");
+    assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/dialog/222");
+  }
+
+  @Test
+  void extractsFromAttachmentAction() {
+    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/attach/333");
+    assertThat(resolver.resolve(req, null)).isEqualTo("https://hooks.slack.com/attach/333");
   }
 
   @Test

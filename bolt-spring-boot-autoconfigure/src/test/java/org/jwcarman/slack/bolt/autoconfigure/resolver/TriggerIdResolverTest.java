@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
@@ -41,5 +42,12 @@ class TriggerIdResolverTest {
     var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
     when(req.getPayload().getTriggerId()).thenReturn("TR67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("TR67890");
+  }
+
+  @Test
+  void extractsFromAttachmentAction() {
+    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTriggerId()).thenReturn("TR11111");
+    assertThat(resolver.resolve(req, null)).isEqualTo("TR11111");
   }
 }

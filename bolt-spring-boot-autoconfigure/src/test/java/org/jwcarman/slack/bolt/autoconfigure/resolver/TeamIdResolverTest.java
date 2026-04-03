@@ -22,8 +22,14 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 
 class TeamIdResolverTest {
 
@@ -41,5 +47,47 @@ class TeamIdResolverTest {
     var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
     when(req.getPayload().getTeam().getId()).thenReturn("T67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("T67890");
+  }
+
+  @Test
+  void extractsFromDialogSubmission() {
+    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T11111");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T11111");
+  }
+
+  @Test
+  void extractsFromDialogSuggestion() {
+    var req = mock(DialogSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T22222");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T22222");
+  }
+
+  @Test
+  void extractsFromDialogCancellation() {
+    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T33333");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T33333");
+  }
+
+  @Test
+  void extractsFromAttachmentAction() {
+    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T44444");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T44444");
+  }
+
+  @Test
+  void extractsFromBlockSuggestion() {
+    var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T55555");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T55555");
+  }
+
+  @Test
+  void extractsFromViewClosed() {
+    var req = mock(ViewClosedRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getTeam().getId()).thenReturn("T66666");
+    assertThat(resolver.resolve(req, null)).isEqualTo("T66666");
   }
 }

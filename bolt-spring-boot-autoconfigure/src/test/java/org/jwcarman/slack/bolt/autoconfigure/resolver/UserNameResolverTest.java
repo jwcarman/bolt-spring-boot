@@ -16,15 +16,22 @@
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
+import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
+import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 class UserNameResolverTest {
@@ -46,10 +53,65 @@ class UserNameResolverTest {
   }
 
   @Test
-  @SuppressWarnings("DataFlowIssue")
-  void throwsForUnsupportedRequest() {
-    ViewSubmissionRequest req = mock(ViewSubmissionRequest.class);
-    assertThatThrownBy(() -> resolver.resolve(req, null))
-        .isInstanceOf(IllegalArgumentException.class);
+  void extractsFromDialogSubmission() {
+    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("dialog_submitter");
+    assertThat(resolver.resolve(req, null)).isEqualTo("dialog_submitter");
+  }
+
+  @Test
+  void extractsFromDialogSuggestion() {
+    var req = mock(DialogSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("dialog_suggester");
+    assertThat(resolver.resolve(req, null)).isEqualTo("dialog_suggester");
+  }
+
+  @Test
+  void extractsFromDialogCancellation() {
+    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("dialog_canceller");
+    assertThat(resolver.resolve(req, null)).isEqualTo("dialog_canceller");
+  }
+
+  @Test
+  void extractsFromAttachmentAction() {
+    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("attachment_actor");
+    assertThat(resolver.resolve(req, null)).isEqualTo("attachment_actor");
+  }
+
+  @Test
+  void extractsFromBlockSuggestion() {
+    var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("block_suggester");
+    assertThat(resolver.resolve(req, null)).isEqualTo("block_suggester");
+  }
+
+  @Test
+  void extractsFromViewSubmission() {
+    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("view_submitter");
+    assertThat(resolver.resolve(req, null)).isEqualTo("view_submitter");
+  }
+
+  @Test
+  void extractsFromViewClosed() {
+    var req = mock(ViewClosedRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("view_closer");
+    assertThat(resolver.resolve(req, null)).isEqualTo("view_closer");
+  }
+
+  @Test
+  void extractsFromGlobalShortcut() {
+    var req = mock(GlobalShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getUsername()).thenReturn("global_shortcutter");
+    assertThat(resolver.resolve(req, null)).isEqualTo("global_shortcutter");
+  }
+
+  @Test
+  void extractsFromMessageShortcut() {
+    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("message_shortcutter");
+    assertThat(resolver.resolve(req, null)).isEqualTo("message_shortcutter");
   }
 }

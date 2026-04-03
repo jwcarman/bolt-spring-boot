@@ -23,7 +23,12 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
 import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -43,6 +48,41 @@ class ChannelIdResolverTest {
     var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
     when(req.getPayload().getChannel().getId()).thenReturn("C67890");
     assertThat(resolver.resolve(req, null)).isEqualTo("C67890");
+  }
+
+  @Test
+  void extractsFromDialogSubmission() {
+    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C11111");
+    assertThat(resolver.resolve(req, null)).isEqualTo("C11111");
+  }
+
+  @Test
+  void extractsFromDialogSuggestion() {
+    var req = mock(DialogSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C22222");
+    assertThat(resolver.resolve(req, null)).isEqualTo("C22222");
+  }
+
+  @Test
+  void extractsFromDialogCancellation() {
+    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C33333");
+    assertThat(resolver.resolve(req, null)).isEqualTo("C33333");
+  }
+
+  @Test
+  void extractsFromAttachmentAction() {
+    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C44444");
+    assertThat(resolver.resolve(req, null)).isEqualTo("C44444");
+  }
+
+  @Test
+  void extractsFromBlockSuggestion() {
+    var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getChannel().getId()).thenReturn("C55555");
+    assertThat(resolver.resolve(req, null)).isEqualTo("C55555");
   }
 
   @Test

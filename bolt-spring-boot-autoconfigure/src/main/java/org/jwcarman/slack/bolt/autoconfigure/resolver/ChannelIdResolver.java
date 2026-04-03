@@ -15,7 +15,12 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
 import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -33,6 +38,11 @@ public class ChannelIdResolver {
           case SlashCommandRequest r -> r.getPayload().getChannelId();
           case BlockActionRequest r -> r.getPayload().getChannel().getId();
           case MessageShortcutRequest r -> r.getPayload().getChannel().getId();
+          case DialogSubmissionRequest r -> r.getPayload().getChannel().getId();
+          case DialogSuggestionRequest r -> r.getPayload().getChannel().getId();
+          case DialogCancellationRequest r -> r.getPayload().getChannel().getId();
+          case AttachmentActionRequest r -> r.getPayload().getChannel().getId();
+          case BlockSuggestionRequest r -> r.getPayload().getChannel().getId();
           default ->
               throw new IllegalArgumentException(
                   "@ChannelId not supported for " + req.getClass().getSimpleName());

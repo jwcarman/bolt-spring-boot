@@ -15,7 +15,10 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
 import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
@@ -33,6 +36,9 @@ public class ResponseUrlResolver {
           case SlashCommandRequest r -> r.getPayload().getResponseUrl();
           case BlockActionRequest r -> r.getPayload().getResponseUrl();
           case MessageShortcutRequest r -> r.getPayload().getResponseUrl();
+          case DialogSubmissionRequest r -> r.getPayload().getResponseUrl();
+          case DialogCancellationRequest r -> r.getPayload().getResponseUrl();
+          case AttachmentActionRequest r -> r.getPayload().getResponseUrl();
           default ->
               throw new IllegalArgumentException(
                   "@ResponseUrl not supported for " + req.getClass().getSimpleName());

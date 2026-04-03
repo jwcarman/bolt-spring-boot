@@ -15,10 +15,16 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
 import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
 import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 /** Resolves the Slack team ID from supported request types. */
@@ -37,6 +43,12 @@ public class TeamIdResolver {
           case ViewSubmissionRequest r -> r.getPayload().getTeam().getId();
           case GlobalShortcutRequest r -> r.getPayload().getTeam().getId();
           case MessageShortcutRequest r -> r.getPayload().getTeam().getId();
+          case DialogSubmissionRequest r -> r.getPayload().getTeam().getId();
+          case DialogSuggestionRequest r -> r.getPayload().getTeam().getId();
+          case DialogCancellationRequest r -> r.getPayload().getTeam().getId();
+          case AttachmentActionRequest r -> r.getPayload().getTeam().getId();
+          case BlockSuggestionRequest r -> r.getPayload().getTeam().getId();
+          case ViewClosedRequest r -> r.getPayload().getTeam().getId();
           default ->
               throw new IllegalArgumentException(
                   "@TeamId not supported for " + req.getClass().getSimpleName());

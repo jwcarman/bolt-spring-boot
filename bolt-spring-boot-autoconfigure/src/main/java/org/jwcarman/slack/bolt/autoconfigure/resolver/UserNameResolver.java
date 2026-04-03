@@ -15,8 +15,17 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
+import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
+import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 /** Resolves the Slack user name from supported request types. */
 public class UserNameResolver {
@@ -31,6 +40,15 @@ public class UserNameResolver {
         switch (req) {
           case SlashCommandRequest r -> r.getPayload().getUserName();
           case BlockActionRequest r -> r.getPayload().getUser().getUsername();
+          case DialogSubmissionRequest r -> r.getPayload().getUser().getName();
+          case DialogSuggestionRequest r -> r.getPayload().getUser().getName();
+          case DialogCancellationRequest r -> r.getPayload().getUser().getName();
+          case AttachmentActionRequest r -> r.getPayload().getUser().getName();
+          case BlockSuggestionRequest r -> r.getPayload().getUser().getName();
+          case ViewSubmissionRequest r -> r.getPayload().getUser().getName();
+          case ViewClosedRequest r -> r.getPayload().getUser().getName();
+          case GlobalShortcutRequest r -> r.getPayload().getUser().getUsername();
+          case MessageShortcutRequest r -> r.getPayload().getUser().getName();
           default ->
               throw new IllegalArgumentException(
                   "@UserName not supported for " + req.getClass().getSimpleName());
