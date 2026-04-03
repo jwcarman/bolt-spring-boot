@@ -20,8 +20,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack view closed handler, registered with {@link
+ * com.slack.api.bolt.App#viewClosed(String, com.slack.api.bolt.handler.builtin.ViewClosedHandler)}.
+ *
+ * <p>The method must accept {@code (ViewClosedRequest, ViewClosedContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewClosed {
+  /** The callback ID to handle. */
   String value();
 }

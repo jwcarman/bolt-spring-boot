@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack block suggestion handler, registered with {@link
+ * com.slack.api.bolt.App#blockSuggestion(String,
+ * com.slack.api.bolt.handler.builtin.BlockSuggestionHandler)}.
+ *
+ * <p>The method must accept {@code (BlockSuggestionRequest, SuggestionContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BlockSuggestion {
+  /** The action ID to handle. */
   String value();
 }

@@ -44,6 +44,15 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.response.Response;
 
+/**
+ * A {@link SlackAppCustomizer} that scans {@link SlackController @SlackController} beans for
+ * annotated handler methods and registers them with the Bolt {@link App}.
+ *
+ * <p>Uses Spring's {@link org.springframework.core.MethodIntrospector} for proxy-safe method
+ * discovery.
+ *
+ * @see SlackController
+ */
 public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
 
   private final ApplicationContext applicationContext;

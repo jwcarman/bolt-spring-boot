@@ -30,6 +30,16 @@ import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.jakarta_servlet.SlackAppServlet;
 import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 
+/**
+ * Auto-configuration for the Slack Bolt framework. Creates and configures the Bolt {@link App},
+ * registers event and OAuth servlets, and applies all {@link SlackAppCustomizer} beans.
+ *
+ * <p>Activated when {@code slack.client-id}, {@code slack.client-secret}, and {@code
+ * slack.signing-secret} are all present in the environment.
+ *
+ * @see SlackProperties
+ * @see SlackAppCustomizer
+ */
 @AutoConfiguration
 @EnableConfigurationProperties(SlackProperties.class)
 @ConditionalOnProperty(

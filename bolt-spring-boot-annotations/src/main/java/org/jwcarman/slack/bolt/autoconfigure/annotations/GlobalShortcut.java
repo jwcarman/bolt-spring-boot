@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack global shortcut handler, registered with {@link
+ * com.slack.api.bolt.App#globalShortcut(String,
+ * com.slack.api.bolt.handler.builtin.GlobalShortcutHandler)}.
+ *
+ * <p>The method must accept {@code (GlobalShortcutRequest, GlobalShortcutContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GlobalShortcut {
+  /** The callback ID to handle. */
   String value();
 }

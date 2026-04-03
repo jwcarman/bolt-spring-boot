@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack attachment action handler, registered with {@link
+ * com.slack.api.bolt.App#attachmentAction(String,
+ * com.slack.api.bolt.handler.builtin.AttachmentActionHandler)}.
+ *
+ * <p>The method must accept {@code (AttachmentActionRequest, ActionContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AttachmentAction {
+  /** The callback ID to handle. */
   String value();
 }

@@ -17,7 +17,28 @@ package org.jwcarman.slack.bolt.autoconfigure;
 
 import com.slack.api.bolt.App;
 
+/**
+ * Callback interface for customizing the Slack Bolt {@link App} during auto-configuration.
+ * Implementations are auto-discovered from the application context and applied before the {@code
+ * App} bean is fully initialized.
+ *
+ * <p>Example usage:
+ *
+ * <pre>{@code
+ * @Bean
+ * SlackAppCustomizer myCustomizer() {
+ *     return app -> app.command("/legacy", (req, ctx) -> ctx.ack("OK"));
+ * }
+ * }</pre>
+ *
+ * @see SlackAutoConfiguration
+ */
 @FunctionalInterface
 public interface SlackAppCustomizer {
+  /**
+   * Customize the given {@link App}.
+   *
+   * @param app the Slack Bolt application to customize
+   */
   void customize(App app);
 }

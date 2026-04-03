@@ -15,6 +15,11 @@
  */
 package org.jwcarman.slack.bolt.autoconfigure;
 
+/**
+ * Thrown when a Slack handler method cannot be invoked via reflection. This wraps {@link
+ * IllegalAccessException} and {@link java.lang.reflect.InvocationTargetException} that occur during
+ * handler dispatch.
+ */
 public class SlackHandlerInvocationException extends RuntimeException {
 
   public SlackHandlerInvocationException(String message, Throwable cause) {

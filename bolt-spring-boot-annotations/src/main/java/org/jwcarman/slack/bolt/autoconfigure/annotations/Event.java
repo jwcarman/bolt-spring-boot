@@ -20,8 +20,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack event handler. The annotated method is registered with {@link
+ * com.slack.api.bolt.App#event(Class, com.slack.api.bolt.handler.BoltEventHandler)}.
+ *
+ * <p>The method must accept {@code (EventsApiPayload<E>, EventContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Event {
+  /** The event type to handle (e.g., {@code AppMentionEvent.class}). */
   Class<? extends com.slack.api.model.event.Event> value();
 }

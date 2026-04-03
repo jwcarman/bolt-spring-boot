@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack message handler, registered with {@link
+ * com.slack.api.bolt.App#message(java.util.regex.Pattern,
+ * com.slack.api.bolt.handler.BoltEventHandler)}.
+ *
+ * <p>The method must accept {@code (EventsApiPayload<MessageEvent>, EventContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Message {
+  /** The regex pattern to match against message text. */
   String value();
 }

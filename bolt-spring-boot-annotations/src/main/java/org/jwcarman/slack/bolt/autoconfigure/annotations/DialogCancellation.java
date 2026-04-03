@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack dialog cancellation handler, registered with {@link
+ * com.slack.api.bolt.App#dialogCancellation(String,
+ * com.slack.api.bolt.handler.builtin.DialogCancellationHandler)}.
+ *
+ * <p>The method must accept {@code (DialogCancellationRequest, DialogCancellationContext)} and
+ * return {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DialogCancellation {
+  /** The callback ID to handle. */
   String value();
 }

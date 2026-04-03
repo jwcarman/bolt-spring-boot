@@ -17,6 +17,12 @@ package org.jwcarman.slack.bolt.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Configuration properties for the Slack Bolt Spring Boot starter, bound to the {@code slack.*}
+ * prefix.
+ *
+ * @see SlackAutoConfiguration
+ */
 @ConfigurationProperties(prefix = "slack")
 public class SlackProperties {
 

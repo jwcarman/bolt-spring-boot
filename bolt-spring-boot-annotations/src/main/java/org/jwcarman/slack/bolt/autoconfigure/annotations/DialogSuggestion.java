@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack dialog suggestion handler, registered with {@link
+ * com.slack.api.bolt.App#dialogSuggestion(String,
+ * com.slack.api.bolt.handler.builtin.DialogSuggestionHandler)}.
+ *
+ * <p>The method must accept {@code (DialogSuggestionRequest, DialogSuggestionContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DialogSuggestion {
+  /** The callback ID to handle. */
   String value();
 }

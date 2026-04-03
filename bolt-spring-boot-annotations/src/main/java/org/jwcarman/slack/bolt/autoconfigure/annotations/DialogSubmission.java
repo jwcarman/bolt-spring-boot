@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack dialog submission handler, registered with {@link
+ * com.slack.api.bolt.App#dialogSubmission(String,
+ * com.slack.api.bolt.handler.builtin.DialogSubmissionHandler)}.
+ *
+ * <p>The method must accept {@code (DialogSubmissionRequest, DialogSubmissionContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DialogSubmission {
+  /** The callback ID to handle. */
   String value();
 }

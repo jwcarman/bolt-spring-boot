@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack block action handler, registered with {@link
+ * com.slack.api.bolt.App#blockAction(String,
+ * com.slack.api.bolt.handler.builtin.BlockActionHandler)}.
+ *
+ * <p>The method must accept {@code (BlockActionRequest, ActionContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BlockAction {
+  /** The action ID to handle. */
   String value();
 }

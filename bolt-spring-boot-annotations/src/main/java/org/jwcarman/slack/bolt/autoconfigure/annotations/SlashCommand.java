@@ -20,8 +20,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack slash command handler. The annotated method is registered with {@link
+ * com.slack.api.bolt.App#command(String, com.slack.api.bolt.handler.builtin.SlashCommandHandler)}.
+ *
+ * <p>The method must accept {@code (SlashCommandRequest, SlashCommandContext)} and return {@code
+ * Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SlashCommand {
+  /** The slash command to handle (e.g., {@code "/deploy"}). */
   String value();
 }

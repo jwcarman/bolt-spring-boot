@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack view submission handler, registered with {@link
+ * com.slack.api.bolt.App#viewSubmission(String,
+ * com.slack.api.bolt.handler.builtin.ViewSubmissionHandler)}.
+ *
+ * <p>The method must accept {@code (ViewSubmissionRequest, ViewSubmissionContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewSubmission {
+  /** The callback ID to handle. */
   String value();
 }

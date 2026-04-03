@@ -20,8 +20,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method as a Slack message shortcut handler, registered with {@link
+ * com.slack.api.bolt.App#messageShortcut(String,
+ * com.slack.api.bolt.handler.builtin.MessageShortcutHandler)}.
+ *
+ * <p>The method must accept {@code (MessageShortcutRequest, MessageShortcutContext)} and return
+ * {@code Response}.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MessageShortcut {
+  /** The callback ID to handle. */
   String value();
 }
