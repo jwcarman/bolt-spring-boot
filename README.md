@@ -33,14 +33,14 @@ Add the starter to your project:
 <dependency>
     <groupId>org.jwcarman.slack</groupId>
     <artifactId>bolt-spring-boot-starter</artifactId>
-    <version>0.2.2</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```kotlin
-implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.2.2")
+implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.3.0")
 ```
 
 ## Slack App Setup
@@ -169,6 +169,104 @@ Each annotated method must match the corresponding Bolt handler signature and re
 | `@AttachmentAction` | `(AttachmentActionRequest req, ActionContext ctx)` |
 
 All request, context, and payload types are from the `com.slack.api.bolt` package.
+
+## Parameter Injection
+
+Instead of accepting the full request and context objects, you can declare only the values you
+need using binding annotations. The framework resolves each parameter individually, making
+handler methods shorter and easier to test.
+
+### Before and After
+
+**Before** -- extracting values manually from the request:
+
+```java
+@SlashCommand("/greet")
+public Response greet(SlashCommandRequest req, SlashCommandContext ctx) {
+    String userId = req.getPayload().getUserId();
+    String text = req.getPayload().getText();
+    return ctx.ack("Hello <@" + userId + ">, you said: " + text);
+}
+```
+
+**After** -- declaring only what you need:
+
+```java
+@SlashCommand("/greet")
+public Response greet(@UserId String userId, @CommandText String text, SlashCommandContext ctx) {
+    return ctx.ack("Hello <@" + userId + ">, you said: " + text);
+}
+```
+
+You can also omit the request and context entirely if you do not need them:
+
+```java
+@SlashCommand("/echo")
+public Response echo(@CommandText String text) {
+    return new Response(200, "application/json", "{\"text\":\"" + text + "\"}");
+}
+```
+
+### Universal Annotations
+
+These annotations work with any handler type:
+
+| Annotation | Type | Description |
+|---|---|---|
+| `@UserId` | `String` | The ID of the user who triggered the action |
+| `@UserName` | `String` | The username of the user who triggered the action |
+| `@TeamId` | `String` | The team (workspace) ID |
+| `@ChannelId` | `String` | The channel ID where the action occurred |
+| `@TriggerId` | `String` | The trigger ID for opening modals |
+| `@ResponseUrl` | `String` | The response URL for deferred replies |
+
+All universal annotations are in the `org.jwcarman.slack.bolt.autoconfigure.annotations.bind` package.
+
+### Handler-Specific Annotations
+
+These annotations extract values that are specific to a particular handler type:
+
+| Annotation | Handler Type | Description |
+|---|---|---|
+| `@CommandText` | `@SlashCommand` | The text following the slash command |
+| `@ActionValue` | `@BlockAction` | The value of the action element |
+| `@MessageText` | `@Message` | The text of the matching message |
+
+### Block Binding with `@Block`
+
+For `@ViewSubmission` handlers, you can bind a record or POJO to a block's input fields using
+the `@Block` annotation. Each record component or setter is matched to an action within the
+named block.
+
+```java
+public record ContactInfo(String fullName, String email) {}
+
+@ViewSubmission("contact-form")
+public Response onSubmit(@Block("contact-info") ContactInfo info, ViewSubmissionContext ctx) {
+    // info.fullName() and info.email() are populated from the view state
+    return ctx.ack();
+}
+```
+
+If you omit the annotation value, the parameter name is used with convention-based matching.
+For example, a parameter named `contactInfo` will match blocks named `contactInfo`,
+`contact-info`, `contact_info`, or `CONTACT_INFO`.
+
+Spring's `ConversionService` handles type coercion for all resolved values, so a parameter
+declared as `int` or `Integer` will be converted from the string value automatically.
+
+### Mixing Annotated and Raw Parameters
+
+You can freely mix binding annotations with the raw request and context types. The framework
+resolves each parameter independently:
+
+```java
+@SlashCommand("/admin")
+public Response admin(@UserId String userId, SlashCommandRequest req, SlashCommandContext ctx) {
+    // userId is injected; req and ctx are the raw Bolt objects
+    return ctx.ack();
+}
+```
 
 ## Configuration Properties
 

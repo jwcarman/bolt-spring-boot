@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-04-03
+
+### Added
+
+- Parameter injection for handler methods using binding annotations
+- Universal binding annotations: `@UserId`, `@UserName`, `@TeamId`, `@ChannelId`, `@TriggerId`, `@ResponseUrl`
+- Handler-specific binding annotations: `@CommandText` (slash commands), `@ActionValue` (block actions), `@MessageText` (message handlers)
+- `@Block` annotation for binding view submission state to records or POJOs
+- `ParameterResolverFactory` for annotation-driven parameter resolution
+- Convention-based name matching for `@Block` (camelCase, kebab-case, snake_case, UPPER_CASE)
+- Type coercion via Spring's `ConversionService` for all resolved parameters
+- Mixed parameter support: annotated params and raw request/context in the same method
+
+### Changed
+
+- `AnnotationDrivenAppCustomizer` refactored to use `ParameterResolver` chain instead of direct method invocation
+
 ## [0.2.2] - 2026-04-03
 
 ### Fixed
@@ -47,6 +64,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Maven Central publishing via GitHub Actions
 - CI with SonarCloud analysis and JaCoCo coverage
 
+[0.3.0]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.3.0
 [0.2.2]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.2.2
 [0.2.1]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.2.1
 [0.2.0]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.2.0
