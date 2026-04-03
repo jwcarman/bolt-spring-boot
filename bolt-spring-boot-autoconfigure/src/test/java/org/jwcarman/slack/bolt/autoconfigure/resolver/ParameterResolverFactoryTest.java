@@ -17,9 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.resolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Parameter;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionValue;
@@ -35,6 +35,7 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserName;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.request.RequestHeaders;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
 @SuppressWarnings("unused")
@@ -171,9 +172,9 @@ class ParameterResolverFactoryTest {
         ParameterResolverFactory.createResolver(
             param, SlashCommandRequest.class, SlashCommandContext.class, conversionService);
 
-    Object mockReq = mock(SlashCommandRequest.class);
-    Object mockCtx = mock(SlashCommandContext.class);
-    assertThat(resolver.resolve(mockReq, mockCtx)).isSameAs(mockReq);
+    var req = new SlashCommandRequest("", new RequestHeaders(Map.of()));
+    var ctx = new SlashCommandContext();
+    assertThat(resolver.resolve(req, ctx)).isSameAs(req);
   }
 
   @Test
@@ -183,9 +184,9 @@ class ParameterResolverFactoryTest {
         ParameterResolverFactory.createResolver(
             param, SlashCommandRequest.class, SlashCommandContext.class, conversionService);
 
-    Object mockReq = mock(SlashCommandRequest.class);
-    Object mockCtx = mock(SlashCommandContext.class);
-    assertThat(resolver.resolve(mockReq, mockCtx)).isSameAs(mockCtx);
+    var req = new SlashCommandRequest("", new RequestHeaders(Map.of()));
+    var ctx = new SlashCommandContext();
+    assertThat(resolver.resolve(req, ctx)).isSameAs(ctx);
   }
 
   @Test
