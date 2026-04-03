@@ -34,6 +34,7 @@ import org.springframework.test.context.TestPropertySource;
       "slack.events-path=/custom/events",
       "slack.oauth-install-path=/custom/install",
       "slack.oauth-redirect-uri-path=/custom/redirect",
+      "slack.bot-token=xoxb-test-token",
       "slack.oauth-completion-url=https://example.com/done",
       "slack.oauth-cancellation-url=https://example.com/cancel"
     })
@@ -55,6 +56,7 @@ class SlackPropertiesTest {
     assertThat(properties.getOauthInstallPath()).isEqualTo("/custom/install");
     assertThat(properties.getOauthRedirectUriPath()).isEqualTo("/custom/redirect");
     assertThat(properties.getOauthCompletionUrl()).isEqualTo("https://example.com/done");
+    assertThat(properties.getBotToken()).isEqualTo("xoxb-test-token");
     assertThat(properties.getOauthCancellationUrl()).isEqualTo("https://example.com/cancel");
   }
 

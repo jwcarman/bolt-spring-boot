@@ -74,6 +74,39 @@ class SlackAutoConfigurationTest {
     contextRunner.run(context -> assertThat(context).hasBean("slackOAuthServlet"));
   }
 
+  // --- Single-team mode ---
+
+  private final WebApplicationContextRunner singleTeamRunner =
+      new WebApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(SlackAutoConfiguration.class))
+          .withPropertyValues(
+              "slack.bot-token=xoxb-test-token", "slack.signing-secret=test-signing-secret");
+
+  @Test
+  void singleTeamModeCreatesAppBean() {
+    singleTeamRunner.run(context -> assertThat(context).hasSingleBean(App.class));
+  }
+
+  @Test
+  void singleTeamModeCreatesAppConfigWithBotToken() {
+    singleTeamRunner.run(
+        context -> {
+          AppConfig config = context.getBean(AppConfig.class);
+          assertThat(config.getSingleTeamBotToken()).isEqualTo("xoxb-test-token");
+          assertThat(config.getSigningSecret()).isEqualTo("test-signing-secret");
+        });
+  }
+
+  @Test
+  void singleTeamModeRegistersEventsServlet() {
+    singleTeamRunner.run(context -> assertThat(context).hasBean("slackEventsServlet"));
+  }
+
+  @Test
+  void singleTeamModeDoesNotRegisterOAuthServlet() {
+    singleTeamRunner.run(context -> assertThat(context).doesNotHaveBean("slackOAuthServlet"));
+  }
+
   @Test
   void doesNotCreateBeansWithoutRequiredProperties() {
     new WebApplicationContextRunner()

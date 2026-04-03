@@ -35,6 +35,7 @@ public class SlackProperties {
   /** Default servlet path for the OAuth redirect URI. */
   public static final String DEFAULT_OAUTH_REDIRECT_URI_PATH = "/slack/oauth_redirect";
 
+  private String botToken;
   private String clientId;
   private String clientSecret;
   private String signingSecret;
@@ -45,6 +46,24 @@ public class SlackProperties {
   private String oauthRedirectUriPath = DEFAULT_OAUTH_REDIRECT_URI_PATH;
   private String oauthCompletionUrl;
   private String oauthCancellationUrl;
+
+  /**
+   * Returns the single-team bot token for non-OAuth apps.
+   *
+   * @return the bot token, or {@code null} if using OAuth mode
+   */
+  public String getBotToken() {
+    return botToken;
+  }
+
+  /**
+   * Sets the single-team bot token for non-OAuth apps.
+   *
+   * @param botToken the bot token
+   */
+  public void setBotToken(String botToken) {
+    this.botToken = botToken;
+  }
 
   /**
    * Returns the Slack app client ID.

@@ -18,6 +18,8 @@ package org.jwcarman.slack.bolt.autoconfigure;
 import java.util.List;
 
 import org.jwcarman.slack.bolt.autoconfigure.registrar.AnnotationDrivenAppCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -45,28 +47,40 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 @ConditionalOnProperty(prefix = "slack", name = "signing-secret")
 public class SlackAutoConfiguration {
 
+  private static final Logger log = LoggerFactory.getLogger(SlackAutoConfiguration.class);
+
   /**
    * Creates the Bolt {@link AppConfig} from the bound {@link SlackProperties}.
    *
-   * <p>When {@code slack.single-team-bot-token} is set, the app runs in single-workspace mode
-   * without OAuth. Otherwise, OAuth properties ({@code client-id}, {@code client-secret}) are used.
+   * <p>When {@code slack.bot-token} is set, the app runs in single-team mode. When {@code
+   * slack.client-id} and {@code slack.client-secret} are set, the app runs in OAuth mode.
    *
    * @param props the Slack configuration properties
    * @return the configured {@link AppConfig}
    */
   @Bean
   public AppConfig appConfig(SlackProperties props) {
-    return AppConfig.builder()
-        .clientId(props.getClientId())
-        .clientSecret(props.getClientSecret())
-        .signingSecret(props.getSigningSecret())
-        .scope(props.getScope())
-        .userScope(props.getUserScope())
-        .oauthInstallPath(props.getOauthInstallPath())
-        .oauthRedirectUriPath(props.getOauthRedirectUriPath())
-        .oauthCompletionUrl(props.getOauthCompletionUrl())
-        .oauthCancellationUrl(props.getOauthCancellationUrl())
-        .build();
+    AppConfig.AppConfigBuilder builder =
+        AppConfig.builder()
+            .signingSecret(props.getSigningSecret())
+            .scope(props.getScope())
+            .userScope(props.getUserScope());
+
+    if (props.getBotToken() != null) {
+      log.info("Configuring Slack Bolt in single-team mode");
+      builder.singleTeamBotToken(props.getBotToken());
+    } else {
+      log.info("Configuring Slack Bolt in OAuth mode");
+      builder
+          .clientId(props.getClientId())
+          .clientSecret(props.getClientSecret())
+          .oauthInstallPath(props.getOauthInstallPath())
+          .oauthRedirectUriPath(props.getOauthRedirectUriPath())
+          .oauthCompletionUrl(props.getOauthCompletionUrl())
+          .oauthCancellationUrl(props.getOauthCancellationUrl());
+    }
+
+    return builder.build();
   }
 
   /**
@@ -81,8 +95,12 @@ public class SlackAutoConfiguration {
    * @return the configured {@link App}
    */
   @Bean
-  public App slackApp(AppConfig config, List<SlackAppCustomizer> customizers) {
-    App app = new App(config).asOAuthApp(true);
+  public App slackApp(
+      AppConfig config, SlackProperties props, List<SlackAppCustomizer> customizers) {
+    App app = new App(config);
+    if (props.getBotToken() == null) {
+      app.asOAuthApp(true);
+    }
     customizers.forEach(c -> c.customize(app));
     return app;
   }
