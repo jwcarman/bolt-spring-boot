@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-04-03
+
+### Added
+
+- Single-team mode support via `slack.bot-token` property
+- Auto-detection of mode based on which properties are present
+- Startup logging indicating which mode is active
+
+### Changed
+
+- `SlackAutoConfiguration` refactored to use `@Conditional` inner classes for single-team vs OAuth mode
+- `scope` and `user-scope` properties only applied in OAuth mode
+
 ## [0.1.0] - 2026-04-03
 
 ### Added
@@ -18,4 +31,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Maven Central publishing via GitHub Actions
 - CI with SonarCloud analysis and JaCoCo coverage
 
+[0.2.0]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.2.0
 [0.1.0]: https://github.com/jwcarman/bolt-spring-boot/releases/tag/0.1.0

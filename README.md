@@ -162,8 +162,8 @@ All properties are under the `slack.*` prefix:
 | `slack.bot-token` | | Bot token for single-team mode |
 | `slack.client-id` | | OAuth client ID (OAuth mode) |
 | `slack.client-secret` | | OAuth client secret (OAuth mode) |
-| `slack.scope` | | Bot token scopes |
-| `slack.user-scope` | | User token scopes |
+| `slack.scope` | | Bot token scopes (OAuth mode only) |
+| `slack.user-scope` | | User token scopes (OAuth mode only) |
 | `slack.events-path` | `/slack/events` | Servlet path for events and interactions |
 | `slack.oauth-install-path` | `/slack/install` | OAuth install initiation path (OAuth mode only) |
 | `slack.oauth-redirect-uri-path` | `/slack/oauth_redirect` | OAuth redirect callback path (OAuth mode only) |

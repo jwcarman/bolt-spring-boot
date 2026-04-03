@@ -34,7 +34,7 @@ import com.slack.api.bolt.jakarta_servlet.SlackAppServlet;
 import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 
 /**
- * Auto-configuration for the Slack Bolt framework. Creates and configures the Bolt {@link App},
+ * Autoconfiguration for the Slack Bolt framework. Creates and configures the Bolt {@link App},
  * registers event and OAuth servlets, and applies all {@link SlackAppCustomizer} beans.
  *
  * <p>Activated when {@code slack.signing-secret} is present. The mode (single-team vs OAuth) is
