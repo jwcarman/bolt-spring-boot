@@ -20,6 +20,7 @@ import java.util.List;
 import org.jwcarman.slack.bolt.autoconfigure.registrar.AnnotationDrivenAppCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +28,8 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
@@ -54,12 +57,16 @@ public class SlackAutoConfiguration {
    * Creates the annotation-driven customizer that registers handler methods.
    *
    * @param applicationContext the Spring application context
+   * @param conversionServiceProvider optional conversion service for parameter type coercion
    * @return the annotation-driven customizer
    */
   @Bean
   public AnnotationDrivenAppCustomizer annotationDrivenAppCustomizer(
-      ApplicationContext applicationContext) {
-    return new AnnotationDrivenAppCustomizer(applicationContext);
+      ApplicationContext applicationContext,
+      ObjectProvider<ConversionService> conversionServiceProvider) {
+    ConversionService conversionService =
+        conversionServiceProvider.getIfAvailable(DefaultConversionService::getSharedInstance);
+    return new AnnotationDrivenAppCustomizer(applicationContext, conversionService);
   }
 
   /**

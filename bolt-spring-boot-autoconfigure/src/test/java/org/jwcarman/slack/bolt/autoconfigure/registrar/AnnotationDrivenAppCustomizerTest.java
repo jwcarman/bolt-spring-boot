@@ -41,7 +41,9 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.SlackController;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.SlashCommand;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewClosed;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewSubmission;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.app_backend.events.payload.EventsApiPayload;
 import com.slack.api.bolt.App;
@@ -371,12 +373,29 @@ class AnnotationDrivenAppCustomizerTest {
         .hasCauseInstanceOf(InvocationTargetException.class);
   }
 
+  // --- Mixed signature handler ---
+
+  @SlackController
+  public static class MixedSignatureSlashCommandHandler {
+    @SlashCommand("/mixed")
+    public Response handle(@CommandText String text, SlashCommandContext ctx) {
+      return ctx.ack("got: " + text);
+    }
+  }
+
+  @Test
+  void shouldRegisterMixedSignatureSlashCommand() throws Exception {
+    App app = customizeWithBean(MixedSignatureSlashCommandHandler.class);
+    assertThat(getHandlerMap(app, "slashCommandHandlers")).isNotEmpty();
+  }
+
   private App customizeWithBean(Class<?> handlerClass) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerBean(handlerClass);
     context.refresh();
 
-    AnnotationDrivenAppCustomizer customizer = new AnnotationDrivenAppCustomizer(context);
+    AnnotationDrivenAppCustomizer customizer =
+        new AnnotationDrivenAppCustomizer(context, new DefaultConversionService());
     App app = createTestApp();
     customizer.customize(app);
 
