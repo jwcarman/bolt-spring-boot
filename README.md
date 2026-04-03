@@ -33,15 +33,29 @@ Add the starter to your project:
 <dependency>
     <groupId>org.jwcarman.slack</groupId>
     <artifactId>bolt-spring-boot-starter</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```kotlin
-implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.1.0-SNAPSHOT")
+implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.1.0")
 ```
+
+## Slack App Setup
+
+Before using this starter, you need a Slack app with OAuth configured:
+
+1. **Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) (choose "From scratch")
+2. Navigate to **OAuth & Permissions** and add the bot token scopes your app needs (e.g., `chat:write`, `commands`, `app_mentions:read`)
+3. Under **OAuth & Permissions**, add a redirect URL matching your `slack.oauth-redirect-uri-path` (default: `https://your-domain/slack/oauth_redirect`)
+4. Navigate to **Basic Information** and note your **Client ID**, **Client Secret**, and **Signing Secret**
+5. If using slash commands, register them under **Slash Commands** pointing to your `slack.events-path` (default: `https://your-domain/slack/events`)
+6. If using events, enable **Event Subscriptions** with the same events URL and subscribe to the events you need
+7. If using interactivity (actions, shortcuts, modals), enable **Interactivity & Shortcuts** with the same events URL
+
+For more details, see the [Slack Bolt for Java getting started guide](https://docs.slack.dev/tools/java-sdk-bolt/guides/getting-started/).
 
 ## Quick Start
 
@@ -104,8 +118,27 @@ The following handler annotations are available:
 | `@DialogCancellation` | `app.dialogCancellation()` | `String` (callback ID) |
 | `@AttachmentAction` | `app.attachmentAction()` | `String` (callback ID) |
 
-Each annotated method must match the corresponding Bolt handler signature (request/payload + context)
-and return `Response`.
+Each annotated method must match the corresponding Bolt handler signature and return `Response`.
+
+### Handler Method Signatures
+
+| Annotation | Method Parameters |
+|---|---|
+| `@SlashCommand` | `(SlashCommandRequest req, SlashCommandContext ctx)` |
+| `@Event` | `(EventsApiPayload<E> payload, EventContext ctx)` |
+| `@BlockAction` | `(BlockActionRequest req, ActionContext ctx)` |
+| `@BlockSuggestion` | `(BlockSuggestionRequest req, BlockSuggestionContext ctx)` |
+| `@GlobalShortcut` | `(GlobalShortcutRequest req, GlobalShortcutContext ctx)` |
+| `@MessageShortcut` | `(MessageShortcutRequest req, MessageShortcutContext ctx)` |
+| `@ViewSubmission` | `(ViewSubmissionRequest req, ViewSubmissionContext ctx)` |
+| `@ViewClosed` | `(ViewClosedRequest req, DefaultContext ctx)` |
+| `@Message` | `(EventsApiPayload<MessageEvent> payload, EventContext ctx)` |
+| `@DialogSubmission` | `(DialogSubmissionRequest req, DialogSubmissionContext ctx)` |
+| `@DialogSuggestion` | `(DialogSuggestionRequest req, DialogSuggestionContext ctx)` |
+| `@DialogCancellation` | `(DialogCancellationRequest req, DialogCancellationContext ctx)` |
+| `@AttachmentAction` | `(AttachmentActionRequest req, ActionContext ctx)` |
+
+All request, context, and payload types are from the `com.slack.api.bolt` package.
 
 ## Configuration Properties
 
