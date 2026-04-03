@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,7 @@ import com.slack.api.bolt.context.builtin.GlobalShortcutContext;
 import com.slack.api.bolt.context.builtin.MessageShortcutContext;
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
+import com.slack.api.bolt.handler.BoltEventHandler;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
 import com.slack.api.bolt.request.builtin.BlockActionRequest;
@@ -272,6 +274,14 @@ class AnnotationDrivenAppCustomizerTest {
   }
 
   @SlackController
+  public static class SuccessfulSlashCommandHandler {
+    @SlashCommand("/ok")
+    public Response handle(SlashCommandRequest req, SlashCommandContext ctx) {
+      return new Response();
+    }
+  }
+
+  @SlackController
   public static class ThrowingSlashCommandHandler {
     @SlashCommand("/throws")
     public Response handle(SlashCommandRequest req, SlashCommandContext ctx) throws Exception {
@@ -279,11 +289,46 @@ class AnnotationDrivenAppCustomizerTest {
     }
   }
 
+  @SlackController
+  public static class ThrowingEventHandler {
+    @Event(AppMentionEvent.class)
+    public Response handle(EventsApiPayload<AppMentionEvent> payload, EventContext ctx)
+        throws Exception {
+      throw new Exception("event failed");
+    }
+  }
+
   @Test
-  void shouldWrapCheckedExceptionInSlackHandlerInvocationException() throws Exception {
+  void shouldInvokeSlashCommandHandlerSuccessfully() throws Exception {
+    App app = customizeWithBean(SuccessfulSlashCommandHandler.class);
+    Map<?, ?> handlers = getHandlerMap(app, "slashCommandHandlers");
+    SlashCommandHandler handler = (SlashCommandHandler) handlers.values().iterator().next();
+
+    Response response = handler.apply(null, null);
+    assertThat(response).isNotNull();
+  }
+
+  @Test
+  void shouldWrapCheckedExceptionFromSlashCommandHandler() throws Exception {
     App app = customizeWithBean(ThrowingSlashCommandHandler.class);
     Map<?, ?> handlers = getHandlerMap(app, "slashCommandHandlers");
     SlashCommandHandler handler = (SlashCommandHandler) handlers.values().iterator().next();
+
+    assertThatThrownBy(() -> handler.apply(null, null))
+        .isInstanceOf(SlackHandlerInvocationException.class)
+        .hasMessageContaining("handle")
+        .hasCauseInstanceOf(InvocationTargetException.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void shouldWrapCheckedExceptionFromEventHandler() throws Exception {
+    App app = customizeWithBean(ThrowingEventHandler.class);
+    Map<String, List<BoltEventHandler<com.slack.api.model.event.Event>>> handlers =
+        (Map<String, List<BoltEventHandler<com.slack.api.model.event.Event>>>)
+            (Map<?, ?>) getHandlerMap(app, "eventHandlers");
+    BoltEventHandler<com.slack.api.model.event.Event> handler =
+        handlers.values().iterator().next().get(0);
 
     assertThatThrownBy(() -> handler.apply(null, null))
         .isInstanceOf(SlackHandlerInvocationException.class)
