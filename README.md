@@ -33,14 +33,14 @@ Add the starter to your project:
 <dependency>
     <groupId>org.jwcarman.slack</groupId>
     <artifactId>bolt-spring-boot-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```kotlin
-implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.1.0")
+implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.2.0")
 ```
 
 ## Slack App Setup
