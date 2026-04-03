@@ -45,15 +45,33 @@ implementation("org.jwcarman.slack:bolt-spring-boot-starter:0.2.0")
 
 ## Slack App Setup
 
-Before using this starter, you need a Slack app with OAuth configured:
+Before using this starter, you need a Slack app. The setup differs depending on which mode you're using.
+
+### Single-Team Mode
+
+For internal tools or single-workspace apps:
 
 1. **Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) (choose "From scratch")
 2. Navigate to **OAuth & Permissions** and add the bot token scopes your app needs (e.g., `chat:write`, `commands`, `app_mentions:read`)
+3. Install the app to your workspace (under **Install App**) and copy the **Bot User OAuth Token** (`xoxb-...`)
+4. Navigate to **Basic Information** and copy the **Signing Secret**
+5. If using slash commands, register them under **Slash Commands** pointing to `https://your-domain/slack/events`
+6. If using events, enable **Event Subscriptions** with the same URL and subscribe to the events you need
+7. If using interactivity (actions, shortcuts, modals), enable **Interactivity & Shortcuts** with the same URL
+
+### OAuth Mode
+
+For apps distributed to multiple workspaces:
+
+1. **Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) (choose "From scratch")
+2. Navigate to **OAuth & Permissions** and add the bot token scopes your app needs
 3. Under **OAuth & Permissions**, add a redirect URL matching your `slack.oauth-redirect-uri-path` (default: `https://your-domain/slack/oauth_redirect`)
-4. Navigate to **Basic Information** and note your **Client ID**, **Client Secret**, and **Signing Secret**
-5. If using slash commands, register them under **Slash Commands** pointing to your `slack.events-path` (default: `https://your-domain/slack/events`)
-6. If using events, enable **Event Subscriptions** with the same events URL and subscribe to the events you need
-7. If using interactivity (actions, shortcuts, modals), enable **Interactivity & Shortcuts** with the same events URL
+4. Navigate to **Basic Information** and copy the **Client ID**, **Client Secret**, and **Signing Secret**
+5. If using slash commands, register them under **Slash Commands** pointing to `https://your-domain/slack/events`
+6. If using events, enable **Event Subscriptions** with the same URL and subscribe to the events you need
+7. If using interactivity (actions, shortcuts, modals), enable **Interactivity & Shortcuts** with the same URL
+
+Users install your app by visiting your OAuth install URL (default: `https://your-domain/slack/install`).
 
 For more details, see the [Slack Bolt for Java getting started guide](https://docs.slack.dev/tools/java-sdk-bolt/guides/getting-started/).
 
