@@ -4,3 +4,7 @@ slack:
 
 server:
   port: 8080
+
+logging:
+  level:
+    org.jwcarman.slack.bolt.autoconfigure: DEBUG

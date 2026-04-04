@@ -36,6 +36,8 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.SlashCommand;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewClosed;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewSubmission;
 import org.jwcarman.slack.bolt.autoconfigure.method.MethodBindingFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -71,6 +73,8 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
  * Bolt {@link App}.
  */
 public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
+
+  private static final Logger log = LoggerFactory.getLogger(AnnotationDrivenAppCustomizer.class);
 
   private final ApplicationContext applicationContext;
   private final MethodBindingFactory methodBindingFactory;
@@ -271,7 +275,15 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
             bean.getClass(),
             (MethodIntrospector.MetadataLookup<A>)
                 method -> AnnotatedElementUtils.findMergedAnnotation(method, annotationType));
-    methods.forEach((method, annotation) -> registrar.register(annotation, method));
+    methods.forEach(
+        (method, annotation) -> {
+          log.debug(
+              "Registering @{} handler: {}.{}",
+              annotationType.getSimpleName(),
+              bean.getClass().getSimpleName(),
+              method.getName());
+          registrar.register(annotation, method);
+        });
   }
 
   @FunctionalInterface
