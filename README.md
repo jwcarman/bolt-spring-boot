@@ -244,6 +244,49 @@ Handler methods support flexible return types:
 | `void` | Auto-acknowledges with `ctx.ack()` |
 | Any other type | Serialized to JSON via `ctx.toJson()` and acknowledged |
 
+### View Submission Binding with `@Block`
+
+For `@ViewSubmission` handlers, you can bind a Java record to a block's input fields using the
+`@Block` annotation. Each record component is matched to an action within the named block.
+
+```java
+public record TicketForm(String title, String description, Integer priority) {}
+
+@ViewSubmission("create-ticket")
+public void onSubmit(@Block("ticket-details") TicketForm ticket, ViewSubmissionContext ctx) {
+    ticketService.create(ticket.title(), ticket.description(), ticket.priority());
+}
+```
+
+If you omit the annotation value, the parameter name is used with convention-based matching.
+For example, a parameter named `ticketDetails` matches blocks named `ticketDetails`,
+`ticket-details`, `ticket_details`, or `TICKETDETAILS`.
+
+Field names within the record follow the same convention-based matching against the block's
+action IDs. Spring's `ConversionService` handles type coercion automatically, so a field
+declared as `Integer` will be converted from the string value in the view state.
+
+#### Overriding Action IDs with `@ActionId`
+
+When a record field name doesn't match the action ID in the block, use `@ActionId` to specify
+the exact action ID:
+
+```java
+public record ContactForm(
+    @ActionId("full-name-input") String fullName,
+    @ActionId("email-address-input") String email
+) {}
+
+@ViewSubmission("contact-form")
+public void onSubmit(@Block ContactForm contact) {
+    // contact.fullName() is bound from the "full-name-input" action
+    // contact.email() is bound from the "email-address-input" action
+}
+```
+
+Without `@ActionId`, the framework resolves field names using the convention-based search path.
+With `@ActionId`, the value is used as an exact match -- no convention matching is attempted.
+
 ### Mixing Annotated and Raw Parameters
 
 You can freely mix binding annotations with the raw request and context types. The framework
