@@ -39,7 +39,9 @@ public final class TestRequests {
 
   private static final RequestHeaders EMPTY_HEADERS = new RequestHeaders(Map.of());
 
-  private TestRequests() {}
+  private TestRequests() {
+    // Utility class
+  }
 
   // ---- SlashCommand (URL-encoded form body) ----
 

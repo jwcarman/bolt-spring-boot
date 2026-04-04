@@ -19,8 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionId;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -115,86 +119,51 @@ class BlockParameterBindingTest {
 
   public record SingleField(String value) {}
 
-  @Test
-  void handlesTimePicker() {
+  static Stream<Arguments> singleValueInputTypes() {
+    return Stream.of(
+        Arguments.of(
+            "timepicker", "{\"type\":\"timepicker\",\"selected_time\":\"14:30\"}", "14:30"),
+        Arguments.of(
+            "users_select", "{\"type\":\"users_select\",\"selected_user\":\"U999\"}", "U999"),
+        Arguments.of(
+            "conversations_select",
+            "{\"type\":\"conversations_select\",\"selected_conversation\":\"C999\"}",
+            "C999"),
+        Arguments.of(
+            "channels_select",
+            "{\"type\":\"channels_select\",\"selected_channel\":\"C888\"}",
+            "C888"),
+        Arguments.of(
+            "url_text_input",
+            "{\"type\":\"url_text_input\",\"value\":\"https://example.com\"}",
+            "https://example.com"),
+        Arguments.of(
+            "email_text_input",
+            "{\"type\":\"email_text_input\",\"value\":\"bob@example.com\"}",
+            "bob@example.com"),
+        Arguments.of(
+            "external_select",
+            "{\"type\":\"external_select\",\"selected_option\":{\"value\":\"ext-val\"}}",
+            "ext-val"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("singleValueInputTypes")
+  void handlesSingleValueInputType(String typeName, String valueJson, String expected) {
     var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
     var req =
         TestRequests.viewSubmission(
             """
         {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"timepicker","selected_time":"14:30"}}
-        }}}}""");
+          "b":{"value":%s}
+        }}}}"""
+                .formatted(valueJson));
     var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("14:30");
+    assertThat(form.value()).isEqualTo(expected);
   }
 
   @Test
-  void handlesUsersSelect() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"users_select","selected_user":"U999"}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("U999");
-  }
-
-  @Test
-  void handlesConversationsSelect() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"conversations_select","selected_conversation":"C999"}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("C999");
-  }
-
-  @Test
-  void handlesChannelsSelect() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"channels_select","selected_channel":"C888"}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("C888");
-  }
-
-  @Test
-  void handlesUrlTextInput() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"url_text_input","value":"https://example.com"}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("https://example.com");
-  }
-
-  @Test
-  void handlesEmailTextInput() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"email_text_input","value":"bob@example.com"}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("bob@example.com");
-  }
-
-  @Test
-  void handlesNumberInput() {
+  void handlesNumberInputWithConversion() {
     var binding = new BlockParameterBinding("b", TypedForm.class, conversionService);
     var req =
         TestRequests.viewSubmission(
@@ -206,84 +175,45 @@ class BlockParameterBindingTest {
     assertThat(form.age()).isEqualTo(7);
   }
 
-  @Test
-  void handlesExternalSelect() {
-    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"external_select","selected_option":{"value":"ext-val"}}}
-        }}}}""");
-    var form = (SingleField) binding.resolve(req, null);
-    assertThat(form.value()).isEqualTo("ext-val");
-  }
-
   public record ListField(List<String> value) {}
 
-  @Test
-  void handlesMultiStaticSelect() {
-    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"multi_static_select","selected_options":[{"value":"a"},{"value":"b"}]}}
-        }}}}""");
-    var form = (ListField) binding.resolve(req, null);
-    assertThat(form.value()).containsExactly("a", "b");
+  static Stream<Arguments> multiValueInputTypes() {
+    return Stream.of(
+        Arguments.of(
+            "multi_static_select",
+            "{\"type\":\"multi_static_select\",\"selected_options\":[{\"value\":\"a\"},{\"value\":\"b\"}]}",
+            List.of("a", "b")),
+        Arguments.of(
+            "multi_external_select",
+            "{\"type\":\"multi_external_select\",\"selected_options\":[{\"value\":\"x\"},{\"value\":\"y\"}]}",
+            List.of("x", "y")),
+        Arguments.of(
+            "multi_users_select",
+            "{\"type\":\"multi_users_select\",\"selected_users\":[\"U1\",\"U2\"]}",
+            List.of("U1", "U2")),
+        Arguments.of(
+            "multi_conversations_select",
+            "{\"type\":\"multi_conversations_select\",\"selected_conversations\":[\"C1\",\"C2\"]}",
+            List.of("C1", "C2")),
+        Arguments.of(
+            "multi_channels_select",
+            "{\"type\":\"multi_channels_select\",\"selected_channels\":[\"C3\",\"C4\"]}",
+            List.of("C3", "C4")));
   }
 
-  @Test
-  void handlesMultiExternalSelect() {
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("multiValueInputTypes")
+  void handlesMultiValueInputType(String typeName, String valueJson, List<String> expected) {
     var binding = new BlockParameterBinding("b", ListField.class, conversionService);
     var req =
         TestRequests.viewSubmission(
             """
         {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"multi_external_select","selected_options":[{"value":"x"},{"value":"y"}]}}
-        }}}}""");
+          "b":{"value":%s}
+        }}}}"""
+                .formatted(valueJson));
     var form = (ListField) binding.resolve(req, null);
-    assertThat(form.value()).containsExactly("x", "y");
-  }
-
-  @Test
-  void handlesMultiUsersSelect() {
-    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"multi_users_select","selected_users":["U1","U2"]}}
-        }}}}""");
-    var form = (ListField) binding.resolve(req, null);
-    assertThat(form.value()).containsExactly("U1", "U2");
-  }
-
-  @Test
-  void handlesMultiConversationsSelect() {
-    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"multi_conversations_select","selected_conversations":["C1","C2"]}}
-        }}}}""");
-    var form = (ListField) binding.resolve(req, null);
-    assertThat(form.value()).containsExactly("C1", "C2");
-  }
-
-  @Test
-  void handlesMultiChannelsSelect() {
-    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
-    var req =
-        TestRequests.viewSubmission(
-            """
-        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
-          "b":{"value":{"type":"multi_channels_select","selected_channels":["C3","C4"]}}
-        }}}}""");
-    var form = (ListField) binding.resolve(req, null);
-    assertThat(form.value()).containsExactly("C3", "C4");
+    assertThat(form.value()).containsExactlyElementsOf(expected);
   }
 
   public record RichTextField(RichTextBlock value) {}

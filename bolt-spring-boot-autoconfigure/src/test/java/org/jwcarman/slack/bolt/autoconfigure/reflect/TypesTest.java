@@ -28,9 +28,9 @@ class TypesTest {
   void newRecordConstructsSuccessfully() {
     var result = Types.newRecord(ValidRecord.class, new Object[] {"Alice", 30});
     assertThat(result).isInstanceOf(ValidRecord.class);
-    var record = (ValidRecord) result;
-    assertThat(record.name()).isEqualTo("Alice");
-    assertThat(record.age()).isEqualTo(30);
+    var validRecord = (ValidRecord) result;
+    assertThat(validRecord.name()).isEqualTo("Alice");
+    assertThat(validRecord.age()).isEqualTo(30);
   }
 
   public record ThrowingRecord(String value) {
