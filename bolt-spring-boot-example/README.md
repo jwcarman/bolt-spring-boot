@@ -20,19 +20,29 @@ A working Slack app that demonstrates all features of the Bolt Spring Boot start
 
 ## Setup
 
-### 1. Create a Slack App
+### 1. Start ngrok
 
-The easiest way is to use the included app manifest:
+You need a public URL for Slack to reach your local app. Start [ngrok](https://ngrok.com/):
 
-1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**
-2. Choose **From an app manifest**
-3. Select your workspace
-4. Paste the contents of [`manifest.json`](manifest.json)
-5. Review and create the app
-6. Under **Install App**, install to your workspace
-7. Copy the **Bot User OAuth Token** (`xoxb-...`) and **Signing Secret** (from **Basic Information**)
+```bash
+ngrok http 8080
+```
 
-### 4. Run the App
+Note the forwarding URL (e.g., `https://xxxx-xx-xx-xxx-xxx.ngrok-free.app`).
+
+### 2. Create a Slack App
+
+1. Open [`manifest.json`](manifest.json) and replace all instances of `https://your-domain` with your ngrok URL
+2. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**
+3. Choose **From an app manifest**
+4. Select your workspace
+5. Paste the updated manifest JSON
+6. Review and create the app
+7. Under **Install App**, install to your workspace
+8. Copy the **Bot User OAuth Token** (`xoxb-...`) from **OAuth & Permissions**
+9. Copy the **Signing Secret** from **Basic Information**
+
+### 3. Run the App
 
 ```bash
 export SLACK_BOT_TOKEN=xoxb-your-token
@@ -40,19 +50,45 @@ export SLACK_SIGNING_SECRET=your-signing-secret
 mvn spring-boot:run -pl bolt-spring-boot-example
 ```
 
-The app starts on port 3000. Use [ngrok](https://ngrok.com/) or a similar tool to expose it:
-
-```bash
-ngrok http 3000
-```
-
-Then update your Slack app's URLs with the ngrok URL.
+The app starts on port 8080.
 
 ## Try It Out
 
-- Type `/hello` in any channel
-- Type `/echo something` in any channel
-- Type `/log some message` in any channel
-- Mention your bot with `@YourBot` in a channel
-- Type "hello" in a channel the bot is in
-- Use the global shortcut "open-feedback-form" from the lightning bolt menu
+### Slash Commands
+
+- `/hello` — returns a greeting with your username (String return type)
+- `/echo some text` — echoes your text back (Response return type)
+- `/log some message` — logs your message server-side (void return, auto-ack)
+
+### Global Shortcut + Modal
+
+1. Click the lightning bolt icon in the message composer
+2. Search for **Open Feedback Form**
+3. Click it — a modal opens
+4. Type feedback and click **Submit**
+5. Check the app logs — your feedback is bound to a `FeedbackForm` record via `@Block`
+
+### Events
+
+- Invite the bot to a channel, then mention it: `@Bolt Example hey there`
+- Type "hello" in a channel the bot is in — the `@Message` handler responds
+
+## Unit Testing
+
+The handlers are plain methods that take simple types, making them trivially testable
+without any Slack infrastructure. See `GreetingHandlersTest` and `InteractiveHandlersTest`
+for examples:
+
+```java
+@Test
+void helloReturnsGreeting() {
+    var result = handlers.hello("James");
+    assertThat(result).isEqualTo("Hello, James!");
+}
+
+@Test
+void onFeedbackSubmitDoesNotThrow() {
+    var feedback = new FeedbackForm("Great framework!");
+    handlers.onFeedbackSubmit("U456", feedback);
+}
+```
