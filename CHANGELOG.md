@@ -4,22 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.3.0] - 2026-04-03
+## [0.3.0] - 2026-04-04
 
 ### Added
 
-- Parameter injection for handler methods using binding annotations
+- Flexible parameter injection for handler methods using binding annotations
 - Universal binding annotations: `@UserId`, `@UserName`, `@TeamId`, `@ChannelId`, `@TriggerId`, `@ResponseUrl`
-- Handler-specific binding annotations: `@CommandText` (slash commands), `@ActionValue` (block actions), `@MessageText` (message handlers)
-- `@Block` annotation for binding view submission state to records or POJOs
-- `ParameterResolverFactory` for annotation-driven parameter resolution
-- Convention-based name matching for `@Block` (camelCase, kebab-case, snake_case, UPPER_CASE)
-- Type coercion via Spring's `ConversionService` for all resolved parameters
+- Handler-specific binding annotations: `@CommandText`, `@ActionValue`, `@MessageText`
+- `@Block` annotation for binding view submission state to Java records
+- `@ActionId` annotation for overriding field-to-action-ID matching in `@Block` records
+- Convention-based name matching (exact, kebab-case, snake_case, case-insensitive)
+- Type coercion via Spring's `ConversionService`
+- Flexible return types: `Response`, `String` (auto-ack with text), `void` (auto-ack), or any object (JSON serialization)
 - Mixed parameter support: annotated params and raw request/context in the same method
+- `ParameterBindingFactory` and `MethodBindingFactory` as Spring beans
+- All Bolt input element types supported in `@Block` binding (text, select, multi-select, datepicker, timepicker, file, rich text, etc.)
 
 ### Changed
 
-- `AnnotationDrivenAppCustomizer` refactored to use `ParameterResolver` chain instead of direct method invocation
+- `AnnotationDrivenAppCustomizer` refactored to use `MethodBindingFactory` for handler registration
+- Removed Mockito from tests — all tests use real Bolt SDK objects for full IDEA compatibility
 
 ## [0.2.2] - 2026-04-03
 
