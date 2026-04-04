@@ -16,10 +16,12 @@
 package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import java.lang.reflect.RecordComponent;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionId;
 import org.jwcarman.slack.bolt.autoconfigure.reflect.Types;
 import org.springframework.core.convert.ConversionService;
 
@@ -30,15 +32,18 @@ import com.slack.api.model.view.ViewState;
  * Binds a view submission block's fields to a Java record. Uses convention-based name matching
  * (exact, kebab-case, snake_case, case-insensitive) and Spring's {@link ConversionService} for type
  * coercion.
+ *
+ * <p>Record component metadata and type coercion are precomputed at startup. Only name resolution
+ * and value extraction happen at request time.
  */
 public final class BlockParameterBinding implements ParameterBinding {
 
   private final String blockName;
   private final Class<?> recordType;
-  private final ConversionService conversionService;
+  private final List<FieldBinding> fieldBindings;
 
   /**
-   * Creates a new block parameter binding.
+   * Creates a new block parameter binding. Precomputes field metadata from the record type.
    *
    * @param blockName the block name to look up in the view state
    * @param recordType the record class to bind to
@@ -48,7 +53,7 @@ public final class BlockParameterBinding implements ParameterBinding {
       String blockName, Class<?> recordType, ConversionService conversionService) {
     this.blockName = blockName;
     this.recordType = recordType;
-    this.conversionService = conversionService;
+    this.fieldBindings = buildFieldBindings(recordType, conversionService);
   }
 
   @Override
@@ -69,38 +74,71 @@ public final class BlockParameterBinding implements ParameterBinding {
                         "Block '" + blockName + "' not found in view state"));
 
     Map<String, ViewState.Value> blockValues = stateValues.get(resolvedBlock);
-    RecordComponent[] components = recordType.getRecordComponents();
-    Object[] args = new Object[components.length];
+    Object[] args = new Object[fieldBindings.size()];
 
-    for (int i = 0; i < components.length; i++) {
-      RecordComponent component = components[i];
-      String fieldKey =
-          resolveName(component.getName(), blockValues.keySet())
-              .orElseThrow(
-                  () ->
-                      new IllegalArgumentException(
-                          "Field '"
-                              + component.getName()
-                              + "' not found in block '"
-                              + resolvedBlock
-                              + "'"));
-
-      ViewState.Value value = blockValues.get(fieldKey);
-      Object rawValue = extractValue(value);
-      args[i] = convert(rawValue, component.getType());
+    for (int i = 0; i < fieldBindings.size(); i++) {
+      args[i] = fieldBindings.get(i).resolve(blockValues, resolvedBlock);
     }
 
     return Types.newRecord(recordType, args);
   }
 
-  private Object convert(Object rawValue, Class<?> targetType) {
-    if (targetType.isInstance(rawValue)) {
-      return rawValue;
-    }
-    return conversionService.convert(rawValue, targetType);
+  private static List<FieldBinding> buildFieldBindings(
+      Class<?> recordType, ConversionService conversionService) {
+    RecordComponent[] components = recordType.getRecordComponents();
+    return java.util.Arrays.stream(components)
+        .map(component -> FieldBinding.of(component, conversionService))
+        .toList();
   }
 
-  private static Object extractValue(ViewState.Value value) {
+  /**
+   * Precomputed binding for a single record field. If {@code explicitActionId} is set (from {@link
+   * ActionId}), uses it directly. Otherwise resolves the field name via convention matching.
+   */
+  private record FieldBinding(
+      String fieldName,
+      String explicitActionId,
+      Class<?> targetType,
+      ConversionService conversionService) {
+
+    static FieldBinding of(RecordComponent component, ConversionService conversionService) {
+      ActionId actionId = component.getAnnotation(ActionId.class);
+      String explicit = actionId != null ? actionId.value() : null;
+      return new FieldBinding(
+          component.getName(), explicit, component.getType(), conversionService);
+    }
+
+    Object resolve(Map<String, ViewState.Value> blockValues, String blockName) {
+      String fieldKey = resolveFieldKey(blockValues.keySet(), blockName);
+      ViewState.Value value = blockValues.get(fieldKey);
+      Object rawValue = extractValue(value);
+      return convert(rawValue);
+    }
+
+    private String resolveFieldKey(Set<String> candidates, String blockName) {
+      if (explicitActionId != null) {
+        if (!candidates.contains(explicitActionId)) {
+          throw new IllegalArgumentException(
+              "Action ID '" + explicitActionId + "' not found in block '" + blockName + "'");
+        }
+        return explicitActionId;
+      }
+      return resolveName(fieldName, candidates)
+          .orElseThrow(
+              () ->
+                  new IllegalArgumentException(
+                      "Field '" + fieldName + "' not found in block '" + blockName + "'"));
+    }
+
+    private Object convert(Object rawValue) {
+      if (targetType.isInstance(rawValue)) {
+        return rawValue;
+      }
+      return conversionService.convert(rawValue, targetType);
+    }
+  }
+
+  static Object extractValue(ViewState.Value value) {
     return switch (value.getType()) {
       case "plain_text_input", "url_text_input", "email_text_input", "number_input" ->
           value.getValue();
@@ -121,7 +159,7 @@ public final class BlockParameterBinding implements ParameterBinding {
     };
   }
 
-  private static Optional<String> resolveName(String javaName, Set<String> candidates) {
+  static Optional<String> resolveName(String javaName, Set<String> candidates) {
     if (candidates.contains(javaName)) {
       return Optional.of(javaName);
     }

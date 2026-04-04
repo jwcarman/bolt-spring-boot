@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionId;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.model.File;
@@ -314,6 +315,76 @@ class BlockParameterBindingTest {
     var form = (FileField) binding.resolve(req, null);
     assertThat(form.value()).hasSize(1);
     assertThat(form.value().get(0).getId()).isEqualTo("F1");
+  }
+
+  // --- @ActionId tests ---
+
+  public record ActionIdForm(@ActionId("custom-action") String title) {}
+
+  @Test
+  void bindsWithExplicitActionId() {
+    var binding = new BlockParameterBinding("b", ActionIdForm.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"custom-action":{"type":"plain_text_input","value":"Explicit"}}
+        }}}}""");
+    var form = (ActionIdForm) binding.resolve(req, null);
+    assertThat(form.title()).isEqualTo("Explicit");
+  }
+
+  @Test
+  void throwsWhenExplicitActionIdNotFound() {
+    var binding = new BlockParameterBinding("b", ActionIdForm.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"wrong-action":{"type":"plain_text_input","value":"x"}}
+        }}}}""");
+    assertThatThrownBy(() -> binding.resolve(req, null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("custom-action");
+  }
+
+  // --- Name resolution coverage ---
+
+  @Test
+  void resolvesBySnakeCase() {
+    // Record field "firstName" should match "first_name"
+    var binding = new BlockParameterBinding("b", FirstNameForm.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"first_name":{"type":"plain_text_input","value":"Snake"}}
+        }}}}""");
+    var form = (FirstNameForm) binding.resolve(req, null);
+    assertThat(form.firstName()).isEqualTo("Snake");
+  }
+
+  public record FirstNameForm(String firstName) {}
+
+  @Test
+  void resolvesByCaseInsensitive() {
+    // Record field "title" should match "TITLE"
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"VALUE":{"type":"plain_text_input","value":"CaseMatch"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("CaseMatch");
+  }
+
+  @Test
+  void resolveNameReturnsEmptyWhenNoMatch() {
+    // Directly test the static method
+    var result = BlockParameterBinding.resolveName("myField", java.util.Set.of("unrelated"));
+    assertThat(result).isEmpty();
   }
 
   @Test
