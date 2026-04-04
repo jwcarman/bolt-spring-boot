@@ -40,7 +40,10 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.SlashCommand;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewClosed;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewSubmission;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
+import org.jwcarman.slack.bolt.autoconfigure.method.MethodBindingFactory;
+import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBindingFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.app_backend.events.payload.EventsApiPayload;
 import com.slack.api.app_backend.events.payload.MessagePayload;
@@ -394,7 +397,11 @@ class AnnotationDrivenAppCustomizerTest {
     context.registerBean(handlerClass);
     context.refresh();
 
-    AnnotationDrivenAppCustomizer customizer = new AnnotationDrivenAppCustomizer(context);
+    var parameterBindingFactory =
+        new ParameterBindingFactory(DefaultConversionService.getSharedInstance());
+    var methodBindingFactory = new MethodBindingFactory(parameterBindingFactory);
+    AnnotationDrivenAppCustomizer customizer =
+        new AnnotationDrivenAppCustomizer(context, methodBindingFactory);
     App app = createTestApp();
     customizer.customize(app);
 

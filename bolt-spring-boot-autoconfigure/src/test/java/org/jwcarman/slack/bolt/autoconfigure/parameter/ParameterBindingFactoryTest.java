@@ -32,17 +32,21 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.TeamId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.TriggerId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserName;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 
 @SuppressWarnings("unused")
-class ParameterBindingsTest {
+class ParameterBindingFactoryTest {
+
+  private final ParameterBindingFactory factory =
+      new ParameterBindingFactory(DefaultConversionService.getSharedInstance());
 
   // --- Test helper methods with annotated parameters ---
 
   // These methods exist only as reflection targets for parameter annotation tests.
-  // They are never called directly — ParameterBindingsTest uses getDeclaredMethod()
+  // They are never called directly — ParameterBindingFactoryTest uses getDeclaredMethod()
   // to inspect their parameter annotations.
 
   void userIdMethod(@UserId String userId) {
@@ -105,13 +109,13 @@ class ParameterBindingsTest {
     // Reflection target
   }
 
-  // --- resolve(Parameter, requestType, contextType) tests via resolve(Method, ...) ---
+  // --- createBindings(Method, requestType, contextType) tests ---
 
   @Test
   void resolvesUserIdAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("userIdMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("user_id=U123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("U123");
@@ -121,7 +125,7 @@ class ParameterBindingsTest {
   void resolvesUserNameAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("userNameMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("user_name=jsmith");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("jsmith");
@@ -131,7 +135,7 @@ class ParameterBindingsTest {
   void resolvesTeamIdAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("teamIdMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("team_id=T123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("T123");
@@ -141,7 +145,7 @@ class ParameterBindingsTest {
   void resolvesChannelIdAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("channelIdMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("channel_id=C123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("C123");
@@ -151,7 +155,7 @@ class ParameterBindingsTest {
   void resolvesTriggerIdAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("triggerIdMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("trigger_id=tr123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("tr123");
@@ -161,7 +165,7 @@ class ParameterBindingsTest {
   void resolvesResponseUrlAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("responseUrlMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("response_url=https://hooks.slack.com/1");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("https://hooks.slack.com/1");
@@ -171,7 +175,7 @@ class ParameterBindingsTest {
   void resolvesCommandTextAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("commandTextMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("text=hello");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("hello");
@@ -181,7 +185,7 @@ class ParameterBindingsTest {
   void resolvesActionValueAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("actionValueMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
   }
 
@@ -189,7 +193,7 @@ class ParameterBindingsTest {
   void resolvesMessageTextAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("messageTextMethod", String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
   }
 
@@ -197,7 +201,7 @@ class ParameterBindingsTest {
   void resolvesRequestType() throws Exception {
     Method method = getClass().getDeclaredMethod("requestTypeMethod", SlashCommandRequest.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var req = TestRequests.slashCommand("user_id=U1");
     assertThat(bindings[0].resolve(req, null)).isSameAs(req);
@@ -207,7 +211,7 @@ class ParameterBindingsTest {
   void resolvesContextType() throws Exception {
     Method method = getClass().getDeclaredMethod("contextTypeMethod", SlashCommandContext.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
     var ctx = new SlashCommandContext();
     assertThat(bindings[0].resolve(null, ctx)).isSameAs(ctx);
@@ -218,7 +222,7 @@ class ParameterBindingsTest {
     Method method = getClass().getDeclaredMethod("unresolvableMethod", String.class);
     assertThatThrownBy(
             () ->
-                ParameterBindings.resolve(
+                factory.createBindings(
                     method, SlashCommandRequest.class, SlashCommandContext.class))
         .isInstanceOf(IllegalArgumentException.class);
   }
@@ -227,23 +231,25 @@ class ParameterBindingsTest {
   void returnsEmptyBindingsForNoParams() throws Exception {
     Method method = getClass().getDeclaredMethod("noParamsMethod");
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).isSameAs(ParameterBindings.EMPTY_BINDINGS);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
+    assertThat(bindings).isSameAs(ParameterBindingFactory.EMPTY_BINDINGS);
   }
 
   // --- resolve(ParameterBinding[], request, context) tests ---
 
   @Test
   void resolveEmptyArrayReturnsEmptyArray() {
-    Object[] result = ParameterBindings.resolve(ParameterBindings.EMPTY_BINDINGS, null, null);
-    assertThat(result).isSameAs(ParameterBindings.EMPTY_PARAMETERS);
+    Object[] result =
+        ParameterBindingFactory.resolve(ParameterBindingFactory.EMPTY_BINDINGS, null, null);
+    assertThat(result).isSameAs(ParameterBindingFactory.EMPTY_PARAMETERS);
   }
 
   @Test
   void resolveBindingsInOrder() {
     ParameterBinding first = (req, ctx) -> "first";
     ParameterBinding second = (req, ctx) -> "second";
-    Object[] result = ParameterBindings.resolve(new ParameterBinding[] {first, second}, null, null);
+    Object[] result =
+        ParameterBindingFactory.resolve(new ParameterBinding[] {first, second}, null, null);
     assertThat(result).containsExactly("first", "second");
   }
 
@@ -251,10 +257,10 @@ class ParameterBindingsTest {
   void resolveMultipleAnnotatedParams() throws Exception {
     Method method = getClass().getDeclaredMethod("multiParamMethod", String.class, String.class);
     ParameterBinding[] bindings =
-        ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(2);
     var req = TestRequests.slashCommand("user_id=U999&team_id=T999");
-    Object[] result = ParameterBindings.resolve(bindings, req, null);
+    Object[] result = ParameterBindingFactory.resolve(bindings, req, null);
     assertThat(result).containsExactly("U999", "T999");
   }
 
@@ -265,7 +271,7 @@ class ParameterBindingsTest {
     Method method = getClass().getDeclaredMethod("userIdMethod", String.class);
     Parameter parameter = method.getParameters()[0];
     ParameterBinding original = (req, ctx) -> null;
-    ParameterBinding wrapped = ParameterBindings.nullSafe(parameter, original);
+    ParameterBinding wrapped = ParameterBindingFactory.nullSafe(parameter, original);
     assertThat(wrapped.resolve(null, null)).isNull();
   }
 
@@ -274,7 +280,7 @@ class ParameterBindingsTest {
     Method method = getClass().getDeclaredMethod("primitiveIntMethod", int.class);
     Parameter parameter = method.getParameters()[0];
     ParameterBinding original = (req, ctx) -> null;
-    ParameterBinding wrapped = ParameterBindings.nullSafe(parameter, original);
+    ParameterBinding wrapped = ParameterBindingFactory.nullSafe(parameter, original);
     assertThat(wrapped.resolve(null, null)).isEqualTo(0);
   }
 
@@ -283,7 +289,7 @@ class ParameterBindingsTest {
     Method method = getClass().getDeclaredMethod("userIdMethod", String.class);
     Parameter parameter = method.getParameters()[0];
     ParameterBinding original = (req, ctx) -> "U123";
-    ParameterBinding wrapped = ParameterBindings.nullSafe(parameter, original);
+    ParameterBinding wrapped = ParameterBindingFactory.nullSafe(parameter, original);
     assertThat(wrapped.resolve(null, null)).isEqualTo("U123");
   }
 }

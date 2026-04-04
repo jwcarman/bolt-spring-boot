@@ -3,7 +3,7 @@ package org.jwcarman.slack.bolt.autoconfigure.method;
 import java.lang.reflect.Method;
 
 import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBinding;
-import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBindings;
+import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBindingFactory;
 import org.jwcarman.slack.bolt.autoconfigure.reflect.Methods;
 
 import com.slack.api.bolt.context.Context;
@@ -31,7 +31,7 @@ public abstract class AbstractMethodBinding<T, R, C extends Context>
 
   @Override
   public Response invoke(R request, C ctx) {
-    var parameters = ParameterBindings.resolve(parameterBindings, request, ctx);
+    var parameters = ParameterBindingFactory.resolve(parameterBindings, request, ctx);
     var returnValue = Methods.invoke(returnType, target, method, parameters);
     return toResponse(ctx, returnValue);
   }

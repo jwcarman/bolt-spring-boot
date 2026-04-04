@@ -17,9 +17,12 @@ package org.jwcarman.slack.bolt.autoconfigure;
 
 import java.util.List;
 
+import org.jwcarman.slack.bolt.autoconfigure.method.MethodBindingFactory;
+import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBindingFactory;
 import org.jwcarman.slack.bolt.autoconfigure.registrar.AnnotationDrivenAppCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +30,8 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
@@ -51,16 +56,42 @@ public class SlackAutoConfiguration {
   private static final Logger log = LoggerFactory.getLogger(SlackAutoConfiguration.class);
 
   /**
+   * Creates the parameter binding factory with the available conversion service, falling back to
+   * the shared default if none is configured.
+   *
+   * @param conversionServiceProvider optional conversion service for parameter type coercion
+   * @return the parameter binding factory
+   */
+  @Bean
+  public ParameterBindingFactory parameterBindingFactory(
+      ObjectProvider<ConversionService> conversionServiceProvider) {
+    return new ParameterBindingFactory(
+        conversionServiceProvider.getIfAvailable(DefaultConversionService::getSharedInstance));
+  }
+
+  /**
+   * Creates the method binding factory that delegates to the parameter binding factory.
+   *
+   * @param parameterBindingFactory the parameter binding factory
+   * @return the method binding factory
+   */
+  @Bean
+  public MethodBindingFactory methodBindingFactory(
+      ParameterBindingFactory parameterBindingFactory) {
+    return new MethodBindingFactory(parameterBindingFactory);
+  }
+
+  /**
    * Creates the annotation-driven customizer that registers handler methods.
    *
    * @param applicationContext the Spring application context
-   * @param conversionServiceProvider optional conversion service for parameter type coercion
+   * @param methodBindingFactory the factory used to create method bindings
    * @return the annotation-driven customizer
    */
   @Bean
   public AnnotationDrivenAppCustomizer annotationDrivenAppCustomizer(
-      ApplicationContext applicationContext) {
-    return new AnnotationDrivenAppCustomizer(applicationContext);
+      ApplicationContext applicationContext, MethodBindingFactory methodBindingFactory) {
+    return new AnnotationDrivenAppCustomizer(applicationContext, methodBindingFactory);
   }
 
   /**

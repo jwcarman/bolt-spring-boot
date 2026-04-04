@@ -29,18 +29,71 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.TriggerId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserName;
 import org.jwcarman.slack.bolt.autoconfigure.reflect.Types;
+import org.springframework.core.convert.ConversionService;
 
 import com.slack.api.bolt.context.Context;
 
-public class ParameterBindings {
+/**
+ * Factory that creates {@link ParameterBinding} arrays for handler methods by inspecting parameter
+ * annotations and types. Holds a {@link ConversionService} for future type-coercion support.
+ *
+ * @see ParameterBinding
+ */
+public class ParameterBindingFactory {
 
+  /** Shared empty bindings constant, returned when a method has no parameters. */
   public static final ParameterBinding[] EMPTY_BINDINGS = new ParameterBinding[0];
+
+  /** Shared empty parameters constant, returned when resolving an empty bindings array. */
   public static final Object[] EMPTY_PARAMETERS = new Object[0];
 
-  private ParameterBindings() {
-    // Utility class
+  private final ConversionService conversionService;
+
+  /**
+   * Creates a new factory with the given conversion service.
+   *
+   * @param conversionService the conversion service for parameter type coercion
+   */
+  public ParameterBindingFactory(ConversionService conversionService) {
+    this.conversionService = conversionService;
   }
 
+  /**
+   * Creates parameter bindings for the given handler method by inspecting each parameter's
+   * annotations and type.
+   *
+   * @param <R> the request type
+   * @param <C> the context type
+   * @param method the handler method to create bindings for
+   * @param requestType the expected request class
+   * @param contextType the expected context class
+   * @return an array of parameter bindings matching the method's parameters
+   * @throws IllegalArgumentException if a parameter cannot be bound
+   */
+  public <R, C extends Context> ParameterBinding[] createBindings(
+      Method method, Class<R> requestType, Class<C> contextType) {
+    var parameterCount = method.getParameterCount();
+    if (parameterCount == 0) {
+      return EMPTY_BINDINGS;
+    }
+    var parameters = method.getParameters();
+    var bindings = new ParameterBinding[parameterCount];
+    for (int i = 0; i < parameters.length; i++) {
+      var parameter = parameters[i];
+      bindings[i] = nullSafe(parameter, resolveParameter(parameter, requestType, contextType));
+    }
+    return bindings;
+  }
+
+  /**
+   * Resolves an array of parameter bindings into concrete argument values for method invocation.
+   * This method is stateless and kept static for use by {@code AbstractMethodBinding}.
+   *
+   * @param parameterBindings the bindings to resolve
+   * @param request the current request object
+   * @param context the current context object
+   * @return an array of resolved parameter values
+   */
   public static Object[] resolve(
       ParameterBinding[] parameterBindings, Object request, Object context) {
     if (parameterBindings.length == 0) {
@@ -53,27 +106,12 @@ public class ParameterBindings {
     return parameters;
   }
 
-  public static <R, C extends Context> ParameterBinding[] resolve(
-      Method method, Class<R> requestType, Class<C> contextType) {
-    var parameterCount = method.getParameterCount();
-    if (parameterCount == 0) {
-      return EMPTY_BINDINGS;
-    }
-    var parameters = method.getParameters();
-    var bindings = new ParameterBinding[parameterCount];
-    for (int i = 0; i < parameters.length; i++) {
-      var parameter = parameters[i];
-      bindings[i] = nullSafe(parameter, resolve(parameter, requestType, contextType));
-    }
-    return bindings;
-  }
-
   static ParameterBinding nullSafe(Parameter parameter, ParameterBinding original) {
     var nullValue = Types.nullValue(parameter.getType());
     return (request, ctx) -> Optional.ofNullable(original.resolve(request, ctx)).orElse(nullValue);
   }
 
-  private static <R, C extends Context> ParameterBinding resolve(
+  private <R, C extends Context> ParameterBinding resolveParameter(
       Parameter parameter, Class<R> requestType, Class<C> contextType) {
     if (parameter.isAnnotationPresent(UserId.class)) {
       return new UserIdParameterBinding();

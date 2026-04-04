@@ -21,13 +21,15 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBindingFactory;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.response.Response;
 
 @SuppressWarnings("unused")
-class MethodBindingsTest {
+class MethodBindingFactoryTest {
 
   // --- Public static test bean so reflection can access across packages ---
 
@@ -49,12 +51,15 @@ class MethodBindingsTest {
   }
 
   private final TestBean bean = new TestBean();
+  private final MethodBindingFactory factory =
+      new MethodBindingFactory(
+          new ParameterBindingFactory(DefaultConversionService.getSharedInstance()));
 
   @Test
   void createsResponseMethodBinding() throws Exception {
     Method method = TestBean.class.getDeclaredMethod("responseMethod");
     MethodBinding<SlashCommandRequest, SlashCommandContext> binding =
-        MethodBindings.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(binding).isInstanceOf(ResponseMethodBinding.class);
   }
 
@@ -62,7 +67,7 @@ class MethodBindingsTest {
   void createsStringMethodBinding() throws Exception {
     Method method = TestBean.class.getDeclaredMethod("stringMethod");
     MethodBinding<SlashCommandRequest, SlashCommandContext> binding =
-        MethodBindings.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(binding).isInstanceOf(StringMethodBinding.class);
   }
 
@@ -70,7 +75,7 @@ class MethodBindingsTest {
   void createsVoidMethodBinding() throws Exception {
     Method method = TestBean.class.getDeclaredMethod("voidMethod");
     MethodBinding<SlashCommandRequest, SlashCommandContext> binding =
-        MethodBindings.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(binding).isInstanceOf(VoidMethodBinding.class);
   }
 
@@ -78,7 +83,7 @@ class MethodBindingsTest {
   void createsJsonMethodBindingForOtherReturnTypes() throws Exception {
     Method method = TestBean.class.getDeclaredMethod("jsonMethod");
     MethodBinding<SlashCommandRequest, SlashCommandContext> binding =
-        MethodBindings.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
+        factory.create(bean, method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(binding).isInstanceOf(JsonMethodBinding.class);
   }
 }

@@ -35,7 +35,7 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.SlackController;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.SlashCommand;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewClosed;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewSubmission;
-import org.jwcarman.slack.bolt.autoconfigure.method.MethodBindings;
+import org.jwcarman.slack.bolt.autoconfigure.method.MethodBindingFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -69,9 +69,18 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
 
   private final ApplicationContext applicationContext;
+  private final MethodBindingFactory methodBindingFactory;
 
-  public AnnotationDrivenAppCustomizer(ApplicationContext applicationContext) {
+  /**
+   * Creates a new customizer that scans for annotated handler methods.
+   *
+   * @param applicationContext the Spring application context to scan for beans
+   * @param methodBindingFactory the factory used to create method bindings
+   */
+  public AnnotationDrivenAppCustomizer(
+      ApplicationContext applicationContext, MethodBindingFactory methodBindingFactory) {
     this.applicationContext = applicationContext;
+    this.methodBindingFactory = methodBindingFactory;
   }
 
   @Override
@@ -103,7 +112,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         SlashCommand.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, SlashCommandRequest.class, SlashCommandContext.class);
           app.command(annotation.value(), binding::invoke);
         });
@@ -115,7 +124,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         Event.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(bean, method, EventsApiPayload.class, EventContext.class);
+              methodBindingFactory.create(bean, method, EventsApiPayload.class, EventContext.class);
           app.event(annotation.value(), binding::invoke);
         });
   }
@@ -126,7 +135,8 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         BlockAction.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(bean, method, BlockActionRequest.class, ActionContext.class);
+              methodBindingFactory.create(
+                  bean, method, BlockActionRequest.class, ActionContext.class);
           app.blockAction(annotation.value(), binding::invoke);
         });
   }
@@ -137,7 +147,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         BlockSuggestion.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, BlockSuggestionRequest.class, BlockSuggestionContext.class);
           app.blockSuggestion(annotation.value(), binding::invoke);
         });
@@ -149,7 +159,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         GlobalShortcut.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, GlobalShortcutRequest.class, GlobalShortcutContext.class);
           app.globalShortcut(annotation.value(), binding::invoke);
         });
@@ -161,7 +171,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         MessageShortcut.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, MessageShortcutRequest.class, MessageShortcutContext.class);
           app.messageShortcut(annotation.value(), binding::invoke);
         });
@@ -173,7 +183,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         ViewSubmission.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, ViewSubmissionRequest.class, ViewSubmissionContext.class);
           app.viewSubmission(annotation.value(), binding::invoke);
         });
@@ -185,7 +195,8 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         ViewClosed.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(bean, method, ViewClosedRequest.class, DefaultContext.class);
+              methodBindingFactory.create(
+                  bean, method, ViewClosedRequest.class, DefaultContext.class);
           app.viewClosed(annotation.value(), binding::invoke);
         });
   }
@@ -196,7 +207,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         Message.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(bean, method, EventsApiPayload.class, EventContext.class);
+              methodBindingFactory.create(bean, method, EventsApiPayload.class, EventContext.class);
           app.message(Pattern.compile(annotation.value()), binding::invoke);
         });
   }
@@ -207,7 +218,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         DialogSubmission.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, DialogSubmissionRequest.class, DialogSubmissionContext.class);
           app.dialogSubmission(annotation.value(), binding::invoke);
         });
@@ -219,7 +230,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         DialogSuggestion.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, DialogSuggestionRequest.class, DialogSuggestionContext.class);
           app.dialogSuggestion(annotation.value(), binding::invoke);
         });
@@ -231,7 +242,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         DialogCancellation.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, DialogCancellationRequest.class, DialogCancellationContext.class);
           app.dialogCancellation(annotation.value(), binding::invoke);
         });
@@ -243,7 +254,7 @@ public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
         AttachmentAction.class,
         (annotation, method) -> {
           var binding =
-              MethodBindings.create(
+              methodBindingFactory.create(
                   bean, method, AttachmentActionRequest.class, AttachmentActionContext.class);
           app.attachmentAction(annotation.value(), binding::invoke);
         });
