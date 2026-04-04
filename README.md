@@ -336,6 +336,15 @@ SlackAppCustomizer additionalSetup() {
 All `SlackAppCustomizer` beans are auto-discovered and applied. The annotation-driven scanner
 is itself a customizer, so programmatic and annotation-driven handlers coexist naturally.
 
+## Example App
+
+The [`bolt-spring-boot-example`](bolt-spring-boot-example) module is a complete, runnable Slack
+app that demonstrates every feature of the starter: slash commands, events, shortcuts, modals,
+`@Block` record binding, all return types, and parameter injection. It includes a Slack app
+manifest for one-step setup and unit tests showing how easy handlers are to test.
+
+See the [example README](bolt-spring-boot-example/README.md) for setup instructions.
+
 ## Modules
 
 | Module | Artifact | Purpose |
@@ -343,6 +352,7 @@ is itself a customizer, so programmatic and annotation-driven handlers coexist n
 | Annotations | `bolt-spring-boot-annotations` | Annotation definitions and `@SlackController` stereotype |
 | Autoconfigure | `bolt-spring-boot-autoconfigure` | Auto-configuration, handler scanning, servlet registration |
 | Starter | `bolt-spring-boot-starter` | Dependency aggregator (add this to your project) |
+| Example | `bolt-spring-boot-example` | Runnable example app (not published) |
 
 The annotations module has minimal dependencies, so libraries that define handler interfaces
 can depend on it without pulling in the full auto-configuration.
