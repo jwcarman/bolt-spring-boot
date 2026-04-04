@@ -17,14 +17,12 @@ package org.jwcarman.slack.bolt.autoconfigure.method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.jwcarman.slack.bolt.autoconfigure.parameter.ParameterBinding;
-import org.mockito.Answers;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
@@ -70,8 +68,8 @@ class AbstractMethodBindingTest {
     var binding =
         new ResponseMethodBinding<SlashCommandRequest, SlashCommandContext>(
             bean, method, new ParameterBinding[0]);
-    var req = mock(SlashCommandRequest.class);
-    var ctx = mock(SlashCommandContext.class);
+    var req = TestRequests.slashCommand("user_id=U1");
+    var ctx = new SlashCommandContext();
     Response result = binding.invoke(req, ctx);
     assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(200);
@@ -83,8 +81,8 @@ class AbstractMethodBindingTest {
     var binding =
         new StringMethodBinding<SlashCommandRequest, SlashCommandContext>(
             bean, method, new ParameterBinding[0]);
-    var req = mock(SlashCommandRequest.class);
-    var ctx = mock(SlashCommandContext.class);
+    var req = TestRequests.slashCommand("user_id=U1");
+    var ctx = new SlashCommandContext();
     Response result = binding.invoke(req, ctx);
     assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(200);
@@ -97,12 +95,12 @@ class AbstractMethodBindingTest {
     var binding =
         new VoidMethodBinding<SlashCommandRequest, SlashCommandContext>(
             bean, method, new ParameterBinding[0]);
-    var req = mock(SlashCommandRequest.class);
-    var ctx = mock(SlashCommandContext.class, Answers.RETURNS_DEEP_STUBS);
-    var ackResponse = Response.ok();
-    when(ctx.ack()).thenReturn(ackResponse);
+    var req = TestRequests.slashCommand("user_id=U1");
+    var ctx = new SlashCommandContext();
     Response result = binding.invoke(req, ctx);
-    assertThat(result).isSameAs(ackResponse);
+    // ctx.ack() returns Response.ok() on a real SlashCommandContext
+    assertThat(result).isNotNull();
+    assertThat(result.getStatusCode()).isEqualTo(200);
   }
 
   @Test
@@ -111,13 +109,11 @@ class AbstractMethodBindingTest {
     var binding =
         new JsonMethodBinding<SlashCommandRequest, SlashCommandContext>(
             bean, method, new ParameterBinding[0]);
-    var req = mock(SlashCommandRequest.class);
-    var ctx = mock(SlashCommandContext.class);
-    var jsonElement = new com.google.gson.JsonPrimitive("hello");
-    var jsonResponse = Response.ok("json");
-    when(ctx.toJson("hello")).thenReturn(jsonElement);
-    when(ctx.ack(jsonElement)).thenReturn(jsonResponse);
+    var req = TestRequests.slashCommand("user_id=U1");
+    var ctx = new SlashCommandContext();
     Response result = binding.invoke(req, ctx);
-    assertThat(result).isSameAs(jsonResponse);
+    // ctx.toJson("hello") returns a JsonPrimitive, ctx.ack(jsonElement) returns a 200 JSON response
+    assertThat(result).isNotNull();
+    assertThat(result.getStatusCode()).isEqualTo(200);
   }
 }

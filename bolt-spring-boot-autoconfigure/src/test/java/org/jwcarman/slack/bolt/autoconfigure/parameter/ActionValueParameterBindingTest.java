@@ -17,17 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class ActionValueParameterBindingTest {
 
@@ -35,17 +27,17 @@ class ActionValueParameterBindingTest {
 
   @Test
   void extractsFromBlockAction() {
-    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    var action = new BlockActionPayload.Action();
-    action.setValue("clicked_value");
-    when(req.getPayload().getActions()).thenReturn(List.of(action));
+    var req =
+        TestRequests.blockAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "actions":[{"action_id":"btn","value":"clicked_value"}]}""");
     assertThat(binding.resolve(req, null)).isEqualTo("clicked_value");
   }
 
   @Test
-  @SuppressWarnings("DataFlowIssue")
   void throwsForUnsupportedRequest() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
+    var req = TestRequests.slashCommand("text=hello");
     assertThatThrownBy(() -> binding.resolve(req, null))
         .isInstanceOf(IllegalArgumentException.class);
   }

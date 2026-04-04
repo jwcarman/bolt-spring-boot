@@ -17,18 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
-import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
-import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class TriggerIdParameterBindingTest {
 
@@ -36,43 +27,57 @@ class TriggerIdParameterBindingTest {
 
   @Test
   void extractsFromSlashCommand() {
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr12345");
+    var req = TestRequests.slashCommand("trigger_id=tr12345");
     assertThat(binding.resolve(req, null)).isEqualTo("tr12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr67890");
+    var req =
+        TestRequests.blockAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "trigger_id":"tr67890","actions":[]}""");
     assertThat(binding.resolve(req, null)).isEqualTo("tr67890");
   }
 
   @Test
   void extractsFromViewSubmission() {
-    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr11111");
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "trigger_id":"tr11111","view":{"state":{"values":{}}}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("tr11111");
   }
 
   @Test
   void extractsFromGlobalShortcut() {
-    var req = mock(GlobalShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr22222");
+    var req =
+        TestRequests.globalShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "trigger_id":"tr22222"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("tr22222");
   }
 
   @Test
   void extractsFromMessageShortcut() {
-    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr33333");
+    var req =
+        TestRequests.messageShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "trigger_id":"tr33333"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("tr33333");
   }
 
   @Test
   void extractsFromAttachmentAction() {
-    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr44444");
+    var req =
+        TestRequests.attachmentAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "trigger_id":"tr44444"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("tr44444");
   }
 

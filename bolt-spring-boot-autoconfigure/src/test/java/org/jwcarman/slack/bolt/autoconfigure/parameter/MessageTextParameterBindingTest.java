@@ -17,14 +17,15 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.Test;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 import com.slack.api.app_backend.events.payload.AppMentionPayload;
+import com.slack.api.app_backend.events.payload.FileDeletedPayload;
 import com.slack.api.app_backend.events.payload.MessagePayload;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.model.event.AppMentionEvent;
+import com.slack.api.model.event.FileDeletedEvent;
 import com.slack.api.model.event.MessageEvent;
 
 class MessageTextParameterBindingTest {
@@ -50,9 +51,17 @@ class MessageTextParameterBindingTest {
   }
 
   @Test
-  @SuppressWarnings("DataFlowIssue")
+  void throwsForUnsupportedEventType() {
+    FileDeletedEvent event = new FileDeletedEvent();
+    FileDeletedPayload payload = new FileDeletedPayload();
+    payload.setEvent(event);
+    assertThatThrownBy(() -> binding.resolve(payload, null))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   void throwsForUnsupportedRequest() {
-    SlashCommandRequest req = mock(SlashCommandRequest.class);
+    var req = TestRequests.slashCommand("text=hello");
     assertThatThrownBy(() -> binding.resolve(req, null))
         .isInstanceOf(IllegalArgumentException.class);
   }

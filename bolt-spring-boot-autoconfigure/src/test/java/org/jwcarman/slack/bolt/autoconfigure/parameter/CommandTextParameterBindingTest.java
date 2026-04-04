@@ -17,13 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class CommandTextParameterBindingTest {
 
@@ -31,9 +27,8 @@ class CommandTextParameterBindingTest {
 
   @Test
   void extractsFromSlashCommand() {
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getText()).thenReturn("some command text");
-    assertThat(binding.resolve(req, null)).isEqualTo("some command text");
+    var req = TestRequests.slashCommand("text=hello");
+    assertThat(binding.resolve(req, null)).isEqualTo("hello");
   }
 
   @Test

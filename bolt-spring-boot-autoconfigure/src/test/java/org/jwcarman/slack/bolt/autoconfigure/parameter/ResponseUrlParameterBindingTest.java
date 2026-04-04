@@ -17,18 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
-import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
-import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class ResponseUrlParameterBindingTest {
 
@@ -36,43 +27,57 @@ class ResponseUrlParameterBindingTest {
 
   @Test
   void extractsFromSlashCommand() {
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/1");
+    var req = TestRequests.slashCommand("response_url=https://hooks.slack.com/1");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/1");
   }
 
   @Test
   void extractsFromBlockAction() {
-    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/2");
+    var req =
+        TestRequests.blockAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "response_url":"https://hooks.slack.com/2","actions":[]}""");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/2");
   }
 
   @Test
   void extractsFromMessageShortcut() {
-    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/3");
+    var req =
+        TestRequests.messageShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "response_url":"https://hooks.slack.com/3"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/3");
   }
 
   @Test
   void extractsFromDialogSubmission() {
-    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/4");
+    var req =
+        TestRequests.dialogSubmission(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "response_url":"https://hooks.slack.com/4"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/4");
   }
 
   @Test
   void extractsFromDialogCancellation() {
-    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/5");
+    var req =
+        TestRequests.dialogCancellation(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "response_url":"https://hooks.slack.com/5"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/5");
   }
 
   @Test
   void extractsFromAttachmentAction() {
-    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/6");
+    var req =
+        TestRequests.attachmentAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},\
+        "response_url":"https://hooks.slack.com/6"}""");
     assertThat(binding.resolve(req, null)).isEqualTo("https://hooks.slack.com/6");
   }
 

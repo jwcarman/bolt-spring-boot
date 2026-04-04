@@ -17,13 +17,12 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.junit.jupiter.api.Test;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionValue;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ChannelId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
@@ -33,7 +32,6 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.TeamId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.TriggerId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserName;
-import org.mockito.Answers;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
@@ -81,8 +79,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUserId()).thenReturn("U123");
+    var req = TestRequests.slashCommand("user_id=U123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("U123");
   }
 
@@ -92,8 +89,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUserName()).thenReturn("jsmith");
+    var req = TestRequests.slashCommand("user_name=jsmith");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("jsmith");
   }
 
@@ -103,8 +99,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeamId()).thenReturn("T123");
+    var req = TestRequests.slashCommand("team_id=T123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("T123");
   }
 
@@ -114,8 +109,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannelId()).thenReturn("C123");
+    var req = TestRequests.slashCommand("channel_id=C123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("C123");
   }
 
@@ -125,8 +119,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTriggerId()).thenReturn("tr123");
+    var req = TestRequests.slashCommand("trigger_id=tr123");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("tr123");
   }
 
@@ -136,8 +129,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getResponseUrl()).thenReturn("https://hooks.slack.com/1");
+    var req = TestRequests.slashCommand("response_url=https://hooks.slack.com/1");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("https://hooks.slack.com/1");
   }
 
@@ -147,8 +139,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getText()).thenReturn("hello");
+    var req = TestRequests.slashCommand("text=hello");
     assertThat(bindings[0].resolve(req, null)).isEqualTo("hello");
   }
 
@@ -174,7 +165,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = mock(SlashCommandRequest.class);
+    var req = TestRequests.slashCommand("user_id=U1");
     assertThat(bindings[0].resolve(req, null)).isSameAs(req);
   }
 
@@ -184,7 +175,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var ctx = mock(SlashCommandContext.class);
+    var ctx = new SlashCommandContext();
     assertThat(bindings[0].resolve(null, ctx)).isSameAs(ctx);
   }
 
@@ -228,9 +219,7 @@ class ParameterBindingsTest {
     ParameterBinding[] bindings =
         ParameterBindings.resolve(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(2);
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUserId()).thenReturn("U999");
-    when(req.getPayload().getTeamId()).thenReturn("T999");
+    var req = TestRequests.slashCommand("user_id=U999&team_id=T999");
     Object[] result = ParameterBindings.resolve(bindings, req, null);
     assertThat(result).containsExactly("U999", "T999");
   }

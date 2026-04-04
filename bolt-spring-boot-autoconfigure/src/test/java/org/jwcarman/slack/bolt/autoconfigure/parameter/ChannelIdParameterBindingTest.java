@@ -17,20 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
-import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
-import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
-import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
-import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class ChannelIdParameterBindingTest {
 
@@ -38,57 +27,70 @@ class ChannelIdParameterBindingTest {
 
   @Test
   void extractsFromSlashCommand() {
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannelId()).thenReturn("C12345");
+    var req = TestRequests.slashCommand("channel_id=C12345");
     assertThat(binding.resolve(req, null)).isEqualTo("C12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C67890");
+    var req =
+        TestRequests.blockAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C67890"},"actions":[]}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C67890");
   }
 
   @Test
   void extractsFromMessageShortcut() {
-    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C11111");
+    var req =
+        TestRequests.messageShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C11111"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C11111");
   }
 
   @Test
   void extractsFromDialogSubmission() {
-    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C22222");
+    var req =
+        TestRequests.dialogSubmission(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C22222"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C22222");
   }
 
   @Test
   void extractsFromDialogSuggestion() {
-    var req = mock(DialogSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C33333");
+    var req =
+        TestRequests.dialogSuggestion(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C33333"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C33333");
   }
 
   @Test
   void extractsFromDialogCancellation() {
-    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C44444");
+    var req =
+        TestRequests.dialogCancellation(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C44444"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C44444");
   }
 
   @Test
   void extractsFromAttachmentAction() {
-    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C55555");
+    var req =
+        TestRequests.attachmentAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C55555"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C55555");
   }
 
   @Test
   void extractsFromBlockSuggestion() {
-    var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getChannel().getId()).thenReturn("C66666");
+    var req =
+        TestRequests.blockSuggestion(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T1"},"channel":{"id":"C66666"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("C66666");
   }
 

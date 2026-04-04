@@ -17,22 +17,9 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
-import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
-import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
-import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
-import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
-import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
-import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
-import com.slack.api.bolt.request.builtin.SlashCommandRequest;
-import com.slack.api.bolt.request.builtin.ViewClosedRequest;
-import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
+import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 
 class TeamIdParameterBindingTest {
 
@@ -40,71 +27,98 @@ class TeamIdParameterBindingTest {
 
   @Test
   void extractsFromSlashCommand() {
-    var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeamId()).thenReturn("T12345");
+    var req = TestRequests.slashCommand("team_id=T12345");
     assertThat(binding.resolve(req, null)).isEqualTo("T12345");
   }
 
   @Test
   void extractsFromBlockAction() {
-    var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T67890");
+    var req =
+        TestRequests.blockAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T67890"},"actions":[]}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T67890");
   }
 
   @Test
   void extractsFromViewSubmission() {
-    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T11111");
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T11111"},\
+        "view":{"state":{"values":{}}}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T11111");
   }
 
   @Test
   void extractsFromGlobalShortcut() {
-    var req = mock(GlobalShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T22222");
+    var req =
+        TestRequests.globalShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T22222"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T22222");
   }
 
   @Test
   void extractsFromMessageShortcut() {
-    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T33333");
+    var req =
+        TestRequests.messageShortcut(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T33333"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T33333");
   }
 
   @Test
   void extractsFromDialogSubmission() {
-    var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T44444");
+    var req =
+        TestRequests.dialogSubmission(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T44444"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T44444");
   }
 
   @Test
+  void extractsFromDialogSuggestion() {
+    var req =
+        TestRequests.dialogSuggestion(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T55000"}}""");
+    assertThat(binding.resolve(req, null)).isEqualTo("T55000");
+  }
+
+  @Test
   void extractsFromDialogCancellation() {
-    var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T55555");
+    var req =
+        TestRequests.dialogCancellation(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T55555"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T55555");
   }
 
   @Test
   void extractsFromAttachmentAction() {
-    var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T66666");
+    var req =
+        TestRequests.attachmentAction(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T66666"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T66666");
   }
 
   @Test
   void extractsFromBlockSuggestion() {
-    var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T77777");
+    var req =
+        TestRequests.blockSuggestion(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T77777"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T77777");
   }
 
   @Test
   void extractsFromViewClosed() {
-    var req = mock(ViewClosedRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getTeam().getId()).thenReturn("T88888");
+    var req =
+        TestRequests.viewClosed(
+            """
+        {"user":{"id":"U1"},"team":{"id":"T88888"}}""");
     assertThat(binding.resolve(req, null)).isEqualTo("T88888");
   }
 
