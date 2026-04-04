@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import org.jwcarman.slack.bolt.autoconfigure.SlackHandlerInvocationException;
 
 public class Methods {
-  private Methods() {}
+  private Methods() {
+    // Utility class
+  }
 
   public static <R> R invoke(Class<R> responseType, Object bean, Method method, Object[] args) {
     try {

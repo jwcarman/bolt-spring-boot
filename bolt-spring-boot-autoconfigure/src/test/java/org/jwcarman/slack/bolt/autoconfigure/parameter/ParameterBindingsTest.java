@@ -41,35 +41,69 @@ class ParameterBindingsTest {
 
   // --- Test helper methods with annotated parameters ---
 
-  void userIdMethod(@UserId String userId) {}
+  // These methods exist only as reflection targets for parameter annotation tests.
+  // They are never called directly — ParameterBindingsTest uses getDeclaredMethod()
+  // to inspect their parameter annotations.
 
-  void userNameMethod(@UserName String userName) {}
+  void userIdMethod(@UserId String userId) {
+    // Reflection target
+  }
 
-  void teamIdMethod(@TeamId String teamId) {}
+  void userNameMethod(@UserName String userName) {
+    // Reflection target
+  }
 
-  void channelIdMethod(@ChannelId String channelId) {}
+  void teamIdMethod(@TeamId String teamId) {
+    // Reflection target
+  }
 
-  void triggerIdMethod(@TriggerId String triggerId) {}
+  void channelIdMethod(@ChannelId String channelId) {
+    // Reflection target
+  }
 
-  void responseUrlMethod(@ResponseUrl String responseUrl) {}
+  void triggerIdMethod(@TriggerId String triggerId) {
+    // Reflection target
+  }
 
-  void commandTextMethod(@CommandText String commandText) {}
+  void responseUrlMethod(@ResponseUrl String responseUrl) {
+    // Reflection target
+  }
 
-  void actionValueMethod(@ActionValue String actionValue) {}
+  void commandTextMethod(@CommandText String commandText) {
+    // Reflection target
+  }
 
-  void messageTextMethod(@MessageText String messageText) {}
+  void actionValueMethod(@ActionValue String actionValue) {
+    // Reflection target
+  }
 
-  void requestTypeMethod(SlashCommandRequest request) {}
+  void messageTextMethod(@MessageText String messageText) {
+    // Reflection target
+  }
 
-  void contextTypeMethod(SlashCommandContext context) {}
+  void requestTypeMethod(SlashCommandRequest request) {
+    // Reflection target
+  }
 
-  void unresolvableMethod(String unknown) {}
+  void contextTypeMethod(SlashCommandContext context) {
+    // Reflection target
+  }
 
-  void noParamsMethod() {}
+  void unresolvableMethod(String unknown) {
+    // Reflection target
+  }
 
-  void multiParamMethod(@UserId String userId, @TeamId String teamId) {}
+  void noParamsMethod() {
+    // Reflection target
+  }
 
-  void primitiveIntMethod(@UserId int userId) {}
+  void multiParamMethod(@UserId String userId, @TeamId String teamId) {
+    // Reflection target
+  }
+
+  void primitiveIntMethod(@UserId int userId) {
+    // Reflection target
+  }
 
   // --- resolve(Parameter, requestType, contextType) tests via resolve(Method, ...) ---
 

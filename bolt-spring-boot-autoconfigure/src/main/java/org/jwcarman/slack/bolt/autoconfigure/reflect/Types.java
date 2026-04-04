@@ -33,5 +33,7 @@ public class Types {
 
   // --------------------------- CONSTRUCTORS ---------------------------
 
-  private Types() {}
+  private Types() {
+    // Utility class
+  }
 }

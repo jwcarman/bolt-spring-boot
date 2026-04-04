@@ -25,5 +25,7 @@ public class MethodBindings {
     return new JsonMethodBinding<>(bean, method, parameterBindings);
   }
 
-  private MethodBindings() {}
+  private MethodBindings() {
+    // Utility class
+  }
 }

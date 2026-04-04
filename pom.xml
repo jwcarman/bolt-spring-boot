@@ -66,7 +66,6 @@
         <spring-boot.version>4.0.5</spring-boot.version>
         <slack-sdk.version>1.48.0</slack-sdk.version>
         <junit-bom.version>6.0.3</junit-bom.version>
-        <mockito.version>5.23.0</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <required.maven.version>3.8</required.maven.version>
 
@@ -107,13 +106,6 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-bom</artifactId>
-                <version>${mockito.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -196,7 +188,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.plugin.version}</version>
                 <configuration>
-                    <argLine>@{jacocoArgLine} -javaagent:"${org.mockito:mockito-core:jar}"</argLine>
+                    <argLine>@{jacocoArgLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -212,7 +204,7 @@
                 </executions>
                 <configuration>
                     <forkedProcessExitTimeoutInSeconds>30</forkedProcessExitTimeoutInSeconds>
-                    <argLine>@{jacocoArgLine} -javaagent:"${org.mockito:mockito-core:jar}"</argLine>
+                    <argLine>@{jacocoArgLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>

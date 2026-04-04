@@ -37,7 +37,9 @@ public class ParameterBindings {
   public static final ParameterBinding[] EMPTY_BINDINGS = new ParameterBinding[0];
   public static final Object[] EMPTY_PARAMETERS = new Object[0];
 
-  private ParameterBindings() {}
+  private ParameterBindings() {
+    // Utility class
+  }
 
   public static Object[] resolve(
       ParameterBinding[] parameterBindings, Object request, Object context) {
