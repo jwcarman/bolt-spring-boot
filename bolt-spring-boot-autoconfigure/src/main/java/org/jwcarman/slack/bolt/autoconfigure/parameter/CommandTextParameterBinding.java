@@ -20,9 +20,6 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 /** Extracts the command text from a slash command request. */
 public final class CommandTextParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code CommandTextParameterBinding}. */
-  public CommandTextParameterBinding() {}
-
   @Override
   public Object resolve(Object request, Object context) {
     return switch (request) {

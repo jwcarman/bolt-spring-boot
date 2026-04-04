@@ -20,9 +20,6 @@ import com.slack.api.bolt.request.builtin.BlockActionRequest;
 /** Extracts the action value from a block action request. */
 public final class ActionValueParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code ActionValueParameterBinding}. */
-  public ActionValueParameterBinding() {}
-
   @Override
   public String resolve(Object request, Object context) {
     return switch (request) {

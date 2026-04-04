@@ -27,9 +27,6 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 /** Extracts the channel ID from the Slack request. */
 public final class ChannelIdParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code ChannelIdParameterBinding}. */
-  public ChannelIdParameterBinding() {}
-
   @Override
   public String resolve(Object request, Object context) {
     return switch (request) {

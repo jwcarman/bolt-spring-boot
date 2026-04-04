@@ -25,9 +25,6 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 /** Extracts the response URL from the Slack request. */
 public final class ResponseUrlParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code ResponseUrlParameterBinding}. */
-  public ResponseUrlParameterBinding() {}
-
   @Override
   public String resolve(Object request, Object context) {
     return switch (request) {

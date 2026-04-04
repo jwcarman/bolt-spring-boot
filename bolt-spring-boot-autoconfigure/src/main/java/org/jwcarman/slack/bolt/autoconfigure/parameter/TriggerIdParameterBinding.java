@@ -25,9 +25,6 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 /** Extracts the trigger ID from the Slack request. */
 public final class TriggerIdParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code TriggerIdParameterBinding}. */
-  public TriggerIdParameterBinding() {}
-
   @Override
   public String resolve(Object request, Object context) {
     return switch (request) {

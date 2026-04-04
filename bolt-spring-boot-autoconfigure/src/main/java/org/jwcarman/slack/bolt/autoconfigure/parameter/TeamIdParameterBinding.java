@@ -30,9 +30,6 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 /** Extracts the team ID from the Slack request. */
 public final class TeamIdParameterBinding implements ParameterBinding {
 
-  /** Creates a new {@code TeamIdParameterBinding}. */
-  public TeamIdParameterBinding() {}
-
   @Override
   public String resolve(Object request, Object context) {
     return switch (request) {
