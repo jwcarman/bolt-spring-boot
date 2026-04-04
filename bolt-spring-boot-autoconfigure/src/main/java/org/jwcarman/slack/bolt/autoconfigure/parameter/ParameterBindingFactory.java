@@ -20,6 +20,7 @@ import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionValue;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.Block;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ChannelId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.MessageText;
@@ -139,6 +140,11 @@ public class ParameterBindingFactory {
     }
     if (parameter.isAnnotationPresent(MessageText.class)) {
       return new MessageTextParameterBinding();
+    }
+    if (parameter.isAnnotationPresent(Block.class)) {
+      Block block = parameter.getAnnotation(Block.class);
+      String blockName = block.value().isEmpty() ? parameter.getName() : block.value();
+      return new BlockParameterBinding(blockName, parameter.getType(), conversionService);
     }
     if (requestType.isAssignableFrom(parameter.getType())) {
       return (request, ctx) -> request;
