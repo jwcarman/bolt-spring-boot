@@ -8,3 +8,4 @@ server:
 logging:
   level:
     org.jwcarman.slack.bolt.autoconfigure: DEBUG
+    com.slack.api.bolt: DEBUG

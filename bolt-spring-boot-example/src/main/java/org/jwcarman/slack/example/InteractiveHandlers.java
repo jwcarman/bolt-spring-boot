@@ -20,8 +20,9 @@ import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.plainTextInput;
 import static com.slack.api.model.view.Views.view;
-import static com.slack.api.model.view.Views.viewSubmit;
-import static com.slack.api.model.view.Views.viewTitle;
+
+import com.slack.api.model.view.ViewSubmit;
+import com.slack.api.model.view.ViewTitle;
 
 import org.jwcarman.slack.bolt.autoconfigure.annotations.BlockAction;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.GlobalShortcut;
@@ -64,28 +65,33 @@ public class InteractiveHandlers {
   @GlobalShortcut("open-feedback-form")
   public Response openFeedbackForm(@TriggerId String triggerId, GlobalShortcutContext ctx)
       throws Exception {
-    ctx.client()
-        .viewsOpen(
-            r ->
-                r.triggerId(triggerId)
-                    .view(
-                        view(
-                            v ->
-                                v.type("modal")
-                                    .callbackId("submit-feedback")
-                                    .title(viewTitle(t -> t.text("Feedback")))
-                                    .submit(viewSubmit(s -> s.text("Submit")))
-                                    .blocks(
-                                        asBlocks(
-                                            input(
-                                                i ->
-                                                    i.blockId("feedback")
-                                                        .label(plainText("Your Feedback"))
-                                                        .element(
-                                                            plainTextInput(
-                                                                t ->
-                                                                    t.actionId("comments")
-                                                                        .multiline(true)))))))));
+    var response =
+        ctx.client()
+            .viewsOpen(
+                r ->
+                    r.triggerId(triggerId)
+                        .view(
+                            view(
+                                v ->
+                                    v.type("modal")
+                                        .callbackId("submit-feedback")
+                                        .title(ViewTitle.builder().type("plain_text").text("Feedback").build())
+                                        .submit(ViewSubmit.builder().type("plain_text").text("Submit").build())
+                                        .blocks(
+                                            asBlocks(
+                                                input(
+                                                    i ->
+                                                        i.blockId("feedback")
+                                                            .label(plainText("Your Feedback"))
+                                                            .element(
+                                                                plainTextInput(
+                                                                    t ->
+                                                                        t.actionId("comments")
+                                                                            .multiline(
+                                                                                true)))))))));
+    if (!response.isOk()) {
+      log.error("Failed to open modal: {} - {}", response.getError(), response.getResponseMetadata());
+    }
     return ctx.ack();
   }
 
