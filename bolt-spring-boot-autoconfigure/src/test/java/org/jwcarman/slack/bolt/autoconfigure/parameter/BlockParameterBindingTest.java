@@ -18,9 +18,14 @@ package org.jwcarman.slack.bolt.autoconfigure.parameter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.springframework.core.convert.support.DefaultConversionService;
+
+import com.slack.api.model.File;
+import com.slack.api.model.block.RichTextBlock;
 
 class BlockParameterBindingTest {
 
@@ -106,6 +111,224 @@ class BlockParameterBindingTest {
   }
 
   public record SelectForm(String priority) {}
+
+  public record SingleField(String value) {}
+
+  @Test
+  void handlesTimePicker() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"timepicker","selected_time":"14:30"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("14:30");
+  }
+
+  @Test
+  void handlesUsersSelect() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"users_select","selected_user":"U999"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("U999");
+  }
+
+  @Test
+  void handlesConversationsSelect() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"conversations_select","selected_conversation":"C999"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("C999");
+  }
+
+  @Test
+  void handlesChannelsSelect() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"channels_select","selected_channel":"C888"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("C888");
+  }
+
+  @Test
+  void handlesUrlTextInput() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"url_text_input","value":"https://example.com"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("https://example.com");
+  }
+
+  @Test
+  void handlesEmailTextInput() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"email_text_input","value":"bob@example.com"}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("bob@example.com");
+  }
+
+  @Test
+  void handlesNumberInput() {
+    var binding = new BlockParameterBinding("b", TypedForm.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"name":{"type":"plain_text_input","value":"Item"},"age":{"type":"number_input","value":"7"}}
+        }}}}""");
+    var form = (TypedForm) binding.resolve(req, null);
+    assertThat(form.age()).isEqualTo(7);
+  }
+
+  @Test
+  void handlesExternalSelect() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"external_select","selected_option":{"value":"ext-val"}}}
+        }}}}""");
+    var form = (SingleField) binding.resolve(req, null);
+    assertThat(form.value()).isEqualTo("ext-val");
+  }
+
+  public record ListField(List<String> value) {}
+
+  @Test
+  void handlesMultiStaticSelect() {
+    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"multi_static_select","selected_options":[{"value":"a"},{"value":"b"}]}}
+        }}}}""");
+    var form = (ListField) binding.resolve(req, null);
+    assertThat(form.value()).containsExactly("a", "b");
+  }
+
+  @Test
+  void handlesMultiExternalSelect() {
+    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"multi_external_select","selected_options":[{"value":"x"},{"value":"y"}]}}
+        }}}}""");
+    var form = (ListField) binding.resolve(req, null);
+    assertThat(form.value()).containsExactly("x", "y");
+  }
+
+  @Test
+  void handlesMultiUsersSelect() {
+    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"multi_users_select","selected_users":["U1","U2"]}}
+        }}}}""");
+    var form = (ListField) binding.resolve(req, null);
+    assertThat(form.value()).containsExactly("U1", "U2");
+  }
+
+  @Test
+  void handlesMultiConversationsSelect() {
+    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"multi_conversations_select","selected_conversations":["C1","C2"]}}
+        }}}}""");
+    var form = (ListField) binding.resolve(req, null);
+    assertThat(form.value()).containsExactly("C1", "C2");
+  }
+
+  @Test
+  void handlesMultiChannelsSelect() {
+    var binding = new BlockParameterBinding("b", ListField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"multi_channels_select","selected_channels":["C3","C4"]}}
+        }}}}""");
+    var form = (ListField) binding.resolve(req, null);
+    assertThat(form.value()).containsExactly("C3", "C4");
+  }
+
+  public record RichTextField(RichTextBlock value) {}
+
+  @Test
+  void handlesRichTextInput() {
+    var binding = new BlockParameterBinding("b", RichTextField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"rich_text_input","rich_text_value":{"type":"rich_text","block_id":"blk","elements":[]}}}
+        }}}}""");
+    var form = (RichTextField) binding.resolve(req, null);
+    assertThat(form.value()).isNotNull();
+  }
+
+  public record FileField(List<File> value) {}
+
+  @Test
+  void handlesFileInput() {
+    var binding = new BlockParameterBinding("b", FileField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"file_input","files":[{"id":"F1","name":"test.txt"}]}}
+        }}}}""");
+    var form = (FileField) binding.resolve(req, null);
+    assertThat(form.value()).hasSize(1);
+    assertThat(form.value().get(0).getId()).isEqualTo("F1");
+  }
+
+  @Test
+  void handlesUnknownInputType() {
+    var binding = new BlockParameterBinding("b", SingleField.class, conversionService);
+    var req =
+        TestRequests.viewSubmission(
+            """
+        {"user":{"id":"U1","name":"bob"},"team":{"id":"T1"},"view":{"state":{"values":{
+          "b":{"value":{"type":"future_widget","value":"x"}}
+        }}}}""");
+    assertThatThrownBy(() -> binding.resolve(req, null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("future_widget");
+  }
 
   @Test
   void throwsWhenBlockNotFound() {

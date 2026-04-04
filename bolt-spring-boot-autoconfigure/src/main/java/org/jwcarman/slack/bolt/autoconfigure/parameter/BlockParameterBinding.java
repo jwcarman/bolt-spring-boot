@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jwcarman.slack.bolt.autoconfigure.reflect.Types;
 import org.springframework.core.convert.ConversionService;
 
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
@@ -89,15 +90,7 @@ public final class BlockParameterBinding implements ParameterBinding {
       args[i] = convert(rawValue, component.getType());
     }
 
-    try {
-      Class<?>[] paramTypes = new Class[components.length];
-      for (int i = 0; i < components.length; i++) {
-        paramTypes[i] = components[i].getType();
-      }
-      return recordType.getDeclaredConstructor(paramTypes).newInstance(args);
-    } catch (ReflectiveOperationException e) {
-      throw new IllegalArgumentException("Failed to construct " + recordType.getSimpleName(), e);
-    }
+    return Types.newRecord(recordType, args);
   }
 
   private Object convert(Object rawValue, Class<?> targetType) {

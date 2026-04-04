@@ -16,10 +16,35 @@
 package org.jwcarman.slack.bolt.autoconfigure.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
 class TypesTest {
+
+  public record ValidRecord(String name, int age) {}
+
+  @Test
+  void newRecordConstructsSuccessfully() {
+    var result = Types.newRecord(ValidRecord.class, new Object[] {"Alice", 30});
+    assertThat(result).isInstanceOf(ValidRecord.class);
+    var record = (ValidRecord) result;
+    assertThat(record.name()).isEqualTo("Alice");
+    assertThat(record.age()).isEqualTo(30);
+  }
+
+  public record ThrowingRecord(String value) {
+    public ThrowingRecord {
+      throw new RuntimeException("constructor failed");
+    }
+  }
+
+  @Test
+  void newRecordThrowsWhenConstructorFails() {
+    assertThatThrownBy(() -> Types.newRecord(ThrowingRecord.class, new Object[] {"test"}))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("ThrowingRecord");
+  }
 
   @Test
   void returnsZeroForInt() {
