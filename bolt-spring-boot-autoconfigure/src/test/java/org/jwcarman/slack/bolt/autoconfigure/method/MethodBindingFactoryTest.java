@@ -43,7 +43,9 @@ class MethodBindingFactoryTest {
       return "hello";
     }
 
-    public void voidMethod() {}
+    public void voidMethod() {
+      // Intentionally empty — tests void return handling
+    }
 
     public Map<String, String> jsonMethod() {
       return Map.of("key", "value");

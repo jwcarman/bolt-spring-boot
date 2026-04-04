@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionValue;
+import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.Block;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ChannelId;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.MessageText;
@@ -39,7 +40,9 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.UserName;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.bolt.context.builtin.SlashCommandContext;
+import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
 import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 @SuppressWarnings("unused")
 class ParameterBindingFactoryTest {
@@ -113,6 +116,16 @@ class ParameterBindingFactoryTest {
     // Reflection target
   }
 
+  public record SimpleForm(String title) {}
+
+  void blockWithExplicitName(@Block("my-block") SimpleForm form) {
+    // Reflection target
+  }
+
+  void blockWithDefaultName(@Block SimpleForm form) {
+    // Reflection target
+  }
+
   // --- createBindings(Method, requestType, contextType) tests ---
 
   static Stream<Arguments> annotationBindings() {
@@ -155,6 +168,24 @@ class ParameterBindingFactoryTest {
     ParameterBinding[] bindings =
         factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
+  }
+
+  @Test
+  void resolvesBlockWithExplicitName() throws Exception {
+    Method method = getClass().getDeclaredMethod("blockWithExplicitName", SimpleForm.class);
+    ParameterBinding[] bindings =
+        factory.createBindings(method, ViewSubmissionRequest.class, ViewSubmissionContext.class);
+    assertThat(bindings).hasSize(1);
+    assertThat(bindings[0]).isNotNull();
+  }
+
+  @Test
+  void resolvesBlockWithDefaultName() throws Exception {
+    Method method = getClass().getDeclaredMethod("blockWithDefaultName", SimpleForm.class);
+    ParameterBinding[] bindings =
+        factory.createBindings(method, ViewSubmissionRequest.class, ViewSubmissionContext.class);
+    assertThat(bindings).hasSize(1);
+    assertThat(bindings[0]).isNotNull();
   }
 
   @Test

@@ -43,7 +43,9 @@ class AbstractMethodBindingTest {
       return "hello";
     }
 
-    public void voidHandler() {}
+    public void voidHandler() {
+      // Intentionally empty — tests void return handling
+    }
 
     public String wrongReturnType() {
       return "wrong";
