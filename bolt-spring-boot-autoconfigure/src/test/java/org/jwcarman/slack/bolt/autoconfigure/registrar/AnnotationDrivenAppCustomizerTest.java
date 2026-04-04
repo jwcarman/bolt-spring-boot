@@ -41,7 +41,6 @@ import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewClosed;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.ViewSubmission;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.CommandText;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.slack.api.app_backend.events.payload.EventsApiPayload;
 import com.slack.api.app_backend.events.payload.MessagePayload;
@@ -395,8 +394,7 @@ class AnnotationDrivenAppCustomizerTest {
     context.registerBean(handlerClass);
     context.refresh();
 
-    AnnotationDrivenAppCustomizer customizer =
-        new AnnotationDrivenAppCustomizer(context, new DefaultConversionService());
+    AnnotationDrivenAppCustomizer customizer = new AnnotationDrivenAppCustomizer(context);
     App app = createTestApp();
     customizer.customize(app);
 
