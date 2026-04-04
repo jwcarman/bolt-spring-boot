@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.slack.api.app_backend.events.payload.EventsApiPayload;
 import com.slack.api.bolt.context.builtin.EventContext;
 import com.slack.api.model.event.AppMentionEvent;
+import com.slack.api.model.event.MessageEvent;
 
 /**
  * Demonstrates event handlers with the raw EventsApiPayload and EventContext.
@@ -42,5 +43,14 @@ public class EventHandlers {
     log.info("Mentioned by {} in {}: {}", event.getUser(), event.getChannel(), event.getText());
     ctx.say("You mentioned me! You said: " + event.getText());
     ctx.ack();
+  }
+
+  /**
+   * Catch-all handler for message events that don't match a @Message pattern. Required because
+   * subscribing to message.channels delivers all messages, and Bolt warns if there's no handler.
+   */
+  @Event(MessageEvent.class)
+  public void onMessage() {
+    // Intentionally empty — the @Message("(?i)hello") handler catches matching messages
   }
 }

@@ -3,4 +3,4 @@ slack:
   signing-secret: ${SLACK_SIGNING_SECRET}
 
 server:
-  port: 3000
+  port: 8080
