@@ -24,17 +24,20 @@
     "slash_commands": [
       {
         "command": "/hello",
+        "url": "https://your-domain/slack/events",
         "description": "Get a greeting",
         "should_escape": false
       },
       {
         "command": "/log",
+        "url": "https://your-domain/slack/events",
         "description": "Log a message (no visible response)",
         "usage_hint": "[message]",
         "should_escape": false
       },
       {
         "command": "/echo",
+        "url": "https://your-domain/slack/events",
         "description": "Echo back your message",
         "usage_hint": "[text]",
         "should_escape": false
@@ -53,13 +56,15 @@
   },
   "settings": {
     "event_subscriptions": {
+      "request_url": "https://your-domain/slack/events",
       "bot_events": [
         "app_mention",
         "message.channels"
       ]
     },
     "interactivity": {
-      "is_enabled": true
+      "is_enabled": true,
+      "request_url": "https://your-domain/slack/events"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,
