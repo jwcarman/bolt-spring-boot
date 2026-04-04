@@ -1,40 +1,51 @@
+/*
+ * Copyright © 2026 James Carman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jwcarman.slack.bolt.autoconfigure.parameter;
 
-import com.slack.api.app_backend.dialogs.payload.DialogCancellationPayload;
-import com.slack.api.app_backend.dialogs.payload.DialogSubmissionPayload;
-import com.slack.api.app_backend.dialogs.payload.DialogSuggestionPayload;
-import com.slack.api.app_backend.interactive_components.payload.AttachmentActionPayload;
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.interactive_components.payload.BlockSuggestionPayload;
-import com.slack.api.app_backend.interactive_components.payload.GlobalShortcutPayload;
-import com.slack.api.app_backend.interactive_components.payload.MessageShortcutPayload;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
-import com.slack.api.app_backend.views.payload.ViewClosedPayload;
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
+import com.slack.api.bolt.request.builtin.AttachmentActionRequest;
+import com.slack.api.bolt.request.builtin.BlockActionRequest;
+import com.slack.api.bolt.request.builtin.BlockSuggestionRequest;
+import com.slack.api.bolt.request.builtin.DialogCancellationRequest;
+import com.slack.api.bolt.request.builtin.DialogSubmissionRequest;
+import com.slack.api.bolt.request.builtin.DialogSuggestionRequest;
+import com.slack.api.bolt.request.builtin.GlobalShortcutRequest;
+import com.slack.api.bolt.request.builtin.MessageShortcutRequest;
+import com.slack.api.bolt.request.builtin.SlashCommandRequest;
+import com.slack.api.bolt.request.builtin.ViewClosedRequest;
+import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
 public final class UserNameParameterBinding implements ParameterBinding {
 
-  // ------------------------ INTERFACE METHODS ------------------------
-
-  // --------------------- Interface ParameterBinding ---------------------
-
   @Override
-  public String resolve(Object payload, Object context) {
-    return switch (payload) {
-      case SlashCommandPayload p -> p.getUserName();
-      case BlockActionPayload p -> p.getUser().getUsername();
-      case DialogSubmissionPayload p -> p.getUser().getName();
-      case DialogSuggestionPayload p -> p.getUser().getName();
-      case DialogCancellationPayload p -> p.getUser().getName();
-      case AttachmentActionPayload p -> p.getUser().getName();
-      case BlockSuggestionPayload p -> p.getUser().getName();
-      case ViewSubmissionPayload p -> p.getUser().getName();
-      case ViewClosedPayload p -> p.getUser().getName();
-      case GlobalShortcutPayload p -> p.getUser().getUsername();
-      case MessageShortcutPayload p -> p.getUser().getName();
+  public String resolve(Object request, Object context) {
+    return switch (request) {
+      case SlashCommandRequest r -> r.getPayload().getUserName();
+      case BlockActionRequest r -> r.getPayload().getUser().getUsername();
+      case DialogSubmissionRequest r -> r.getPayload().getUser().getName();
+      case DialogSuggestionRequest r -> r.getPayload().getUser().getName();
+      case DialogCancellationRequest r -> r.getPayload().getUser().getName();
+      case AttachmentActionRequest r -> r.getPayload().getUser().getName();
+      case BlockSuggestionRequest r -> r.getPayload().getUser().getName();
+      case ViewSubmissionRequest r -> r.getPayload().getUser().getName();
+      case ViewClosedRequest r -> r.getPayload().getUser().getName();
+      case GlobalShortcutRequest r -> r.getPayload().getUser().getUsername();
+      case MessageShortcutRequest r -> r.getPayload().getUser().getName();
       default ->
           throw new IllegalArgumentException(
-              "@UserName not supported for payload type " + payload.getClass().getSimpleName());
+              "@UserName not supported for " + request.getClass().getSimpleName());
     };
   }
 }

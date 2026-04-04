@@ -35,85 +35,85 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
-class UserIdParameterBindingTest {
+class UserNameParameterBindingTest {
 
-  private final ParameterBinding binding = new UserIdParameterBinding();
+  private final ParameterBinding binding = new UserNameParameterBinding();
 
   @Test
   void extractsFromSlashCommand() {
     var req = mock(SlashCommandRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUserId()).thenReturn("U12345");
-    assertThat(binding.resolve(req, null)).isEqualTo("U12345");
+    when(req.getPayload().getUserName()).thenReturn("jsmith");
+    assertThat(binding.resolve(req, null)).isEqualTo("jsmith");
   }
 
   @Test
   void extractsFromBlockAction() {
     var req = mock(BlockActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U67890");
-    assertThat(binding.resolve(req, null)).isEqualTo("U67890");
-  }
-
-  @Test
-  void extractsFromViewSubmission() {
-    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U11111");
-    assertThat(binding.resolve(req, null)).isEqualTo("U11111");
-  }
-
-  @Test
-  void extractsFromGlobalShortcut() {
-    var req = mock(GlobalShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U22222");
-    assertThat(binding.resolve(req, null)).isEqualTo("U22222");
-  }
-
-  @Test
-  void extractsFromMessageShortcut() {
-    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U33333");
-    assertThat(binding.resolve(req, null)).isEqualTo("U33333");
+    when(req.getPayload().getUser().getUsername()).thenReturn("jdoe");
+    assertThat(binding.resolve(req, null)).isEqualTo("jdoe");
   }
 
   @Test
   void extractsFromDialogSubmission() {
     var req = mock(DialogSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U44444");
-    assertThat(binding.resolve(req, null)).isEqualTo("U44444");
+    when(req.getPayload().getUser().getName()).thenReturn("alice");
+    assertThat(binding.resolve(req, null)).isEqualTo("alice");
   }
 
   @Test
   void extractsFromDialogSuggestion() {
     var req = mock(DialogSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U55555");
-    assertThat(binding.resolve(req, null)).isEqualTo("U55555");
+    when(req.getPayload().getUser().getName()).thenReturn("bob");
+    assertThat(binding.resolve(req, null)).isEqualTo("bob");
   }
 
   @Test
   void extractsFromDialogCancellation() {
     var req = mock(DialogCancellationRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U66666");
-    assertThat(binding.resolve(req, null)).isEqualTo("U66666");
+    when(req.getPayload().getUser().getName()).thenReturn("carol");
+    assertThat(binding.resolve(req, null)).isEqualTo("carol");
   }
 
   @Test
   void extractsFromAttachmentAction() {
     var req = mock(AttachmentActionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U77777");
-    assertThat(binding.resolve(req, null)).isEqualTo("U77777");
+    when(req.getPayload().getUser().getName()).thenReturn("dave");
+    assertThat(binding.resolve(req, null)).isEqualTo("dave");
   }
 
   @Test
   void extractsFromBlockSuggestion() {
     var req = mock(BlockSuggestionRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U88888");
-    assertThat(binding.resolve(req, null)).isEqualTo("U88888");
+    when(req.getPayload().getUser().getName()).thenReturn("eve");
+    assertThat(binding.resolve(req, null)).isEqualTo("eve");
+  }
+
+  @Test
+  void extractsFromViewSubmission() {
+    var req = mock(ViewSubmissionRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("frank");
+    assertThat(binding.resolve(req, null)).isEqualTo("frank");
   }
 
   @Test
   void extractsFromViewClosed() {
     var req = mock(ViewClosedRequest.class, Answers.RETURNS_DEEP_STUBS);
-    when(req.getPayload().getUser().getId()).thenReturn("U99999");
-    assertThat(binding.resolve(req, null)).isEqualTo("U99999");
+    when(req.getPayload().getUser().getName()).thenReturn("grace");
+    assertThat(binding.resolve(req, null)).isEqualTo("grace");
+  }
+
+  @Test
+  void extractsFromGlobalShortcut() {
+    var req = mock(GlobalShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getUsername()).thenReturn("heidi");
+    assertThat(binding.resolve(req, null)).isEqualTo("heidi");
+  }
+
+  @Test
+  void extractsFromMessageShortcut() {
+    var req = mock(MessageShortcutRequest.class, Answers.RETURNS_DEEP_STUBS);
+    when(req.getPayload().getUser().getName()).thenReturn("ivan");
+    assertThat(binding.resolve(req, null)).isEqualTo("ivan");
   }
 
   @Test
