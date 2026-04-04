@@ -21,7 +21,6 @@
       {
         "command": "/hello",
         "description": "Get a greeting",
-        "usage_hint": "",
         "should_escape": false
       },
       {
