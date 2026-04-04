@@ -33,8 +33,8 @@ class MethodsTest {
       return "world";
     }
 
-    private String privateMethod() {
-      return "secret";
+    public String throwsException() {
+      throw new RuntimeException("boom");
     }
   }
 
@@ -49,7 +49,7 @@ class MethodsTest {
 
   @Test
   void throwsSlackHandlerInvocationExceptionOnError() throws Exception {
-    Method method = TestBean.class.getDeclaredMethod("privateMethod");
+    Method method = TestBean.class.getDeclaredMethod("throwsException");
     assertThatThrownBy(() -> Methods.invoke(String.class, bean, method, new Object[0]))
         .isInstanceOf(SlackHandlerInvocationException.class);
   }

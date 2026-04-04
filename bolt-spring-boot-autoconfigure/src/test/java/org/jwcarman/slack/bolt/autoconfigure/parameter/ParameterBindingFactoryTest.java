@@ -20,8 +20,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.jwcarman.slack.bolt.autoconfigure.TestRequests;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ActionValue;
 import org.jwcarman.slack.bolt.autoconfigure.annotations.bind.ChannelId;
@@ -111,74 +115,30 @@ class ParameterBindingFactoryTest {
 
   // --- createBindings(Method, requestType, contextType) tests ---
 
-  @Test
-  void resolvesUserIdAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("userIdMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("user_id=U123");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("U123");
+  static Stream<Arguments> annotationBindings() {
+    return Stream.of(
+        Arguments.of("userIdMethod", "user_id=U123", "U123"),
+        Arguments.of("userNameMethod", "user_name=jsmith", "jsmith"),
+        Arguments.of("teamIdMethod", "team_id=T123", "T123"),
+        Arguments.of("channelIdMethod", "channel_id=C123", "C123"),
+        Arguments.of("triggerIdMethod", "trigger_id=tr123", "tr123"),
+        Arguments.of(
+            "responseUrlMethod",
+            "response_url=https://hooks.slack.com/1",
+            "https://hooks.slack.com/1"),
+        Arguments.of("commandTextMethod", "text=hello", "hello"));
   }
 
-  @Test
-  void resolvesUserNameAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("userNameMethod", String.class);
+  @ParameterizedTest
+  @MethodSource("annotationBindings")
+  void resolvesAnnotationBinding(String methodName, String formData, String expected)
+      throws Exception {
+    Method method = getClass().getDeclaredMethod(methodName, String.class);
     ParameterBinding[] bindings =
         factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
     assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("user_name=jsmith");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("jsmith");
-  }
-
-  @Test
-  void resolvesTeamIdAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("teamIdMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("team_id=T123");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("T123");
-  }
-
-  @Test
-  void resolvesChannelIdAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("channelIdMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("channel_id=C123");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("C123");
-  }
-
-  @Test
-  void resolvesTriggerIdAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("triggerIdMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("trigger_id=tr123");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("tr123");
-  }
-
-  @Test
-  void resolvesResponseUrlAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("responseUrlMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("response_url=https://hooks.slack.com/1");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("https://hooks.slack.com/1");
-  }
-
-  @Test
-  void resolvesCommandTextAnnotation() throws Exception {
-    Method method = getClass().getDeclaredMethod("commandTextMethod", String.class);
-    ParameterBinding[] bindings =
-        factory.createBindings(method, SlashCommandRequest.class, SlashCommandContext.class);
-    assertThat(bindings).hasSize(1);
-    var req = TestRequests.slashCommand("text=hello");
-    assertThat(bindings[0].resolve(req, null)).isEqualTo("hello");
+    var req = TestRequests.slashCommand(formData);
+    assertThat(bindings[0].resolve(req, null)).isEqualTo(expected);
   }
 
   @Test

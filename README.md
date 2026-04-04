@@ -106,24 +106,24 @@ The starter auto-detects the mode based on which properties are present.
 public class MySlackHandlers {
 
     @SlashCommand("/hello")
-    public Response hello(SlashCommandRequest req, SlashCommandContext ctx) {
-        return ctx.ack("Hello, " + req.getPayload().getUserName() + "!");
+    public Response hello(@UserName String name, SlashCommandContext ctx) {
+        return ctx.ack("Hello, " + name + "!");
     }
 
-    @Event(AppMentionEvent.class)
-    public Response onMention(EventsApiPayload<AppMentionEvent> event, EventContext ctx) {
-        ctx.say("You mentioned me!");
-        return ctx.ack();
+    @SlashCommand("/echo")
+    public String echo(@CommandText String text) {
+        return "You said: " + text;
     }
 
     @BlockAction("approve-button")
-    public Response onApprove(BlockActionRequest req, ActionContext ctx) {
-        return ctx.ack();
+    public void onApprove(@UserId String userId) {
+        log.info("Approved by {}", userId);
     }
 }
 ```
 
-That's it. No `App` configuration, no servlet registration, no boilerplate.
+That's it. No `App` configuration, no servlet registration, no boilerplate. Declare only the
+parameters you need, and the framework handles the rest.
 
 ## Annotations
 
@@ -148,9 +148,10 @@ The following handler annotations are available:
 | `@DialogCancellation` | `app.dialogCancellation()` | `String` (callback ID) |
 | `@AttachmentAction` | `app.attachmentAction()` | `String` (callback ID) |
 
-Each annotated method must match the corresponding Bolt handler signature and return `Response`.
+Handler methods can use [parameter injection](#parameter-injection) to declare only the values
+they need, or accept the full Bolt request and context objects:
 
-### Handler Method Signatures
+### Full Request/Context Types
 
 | Annotation | Method Parameters |
 |---|---|
@@ -232,28 +233,16 @@ These annotations extract values that are specific to a particular handler type:
 | `@ActionValue` | `@BlockAction` | The value of the action element |
 | `@MessageText` | `@Message` | The text of the matching message |
 
-### Block Binding with `@Block`
+### Return Types
 
-For `@ViewSubmission` handlers, you can bind a record or POJO to a block's input fields using
-the `@Block` annotation. Each record component or setter is matched to an action within the
-named block.
+Handler methods support flexible return types:
 
-```java
-public record ContactInfo(String fullName, String email) {}
-
-@ViewSubmission("contact-form")
-public Response onSubmit(@Block("contact-info") ContactInfo info, ViewSubmissionContext ctx) {
-    // info.fullName() and info.email() are populated from the view state
-    return ctx.ack();
-}
-```
-
-If you omit the annotation value, the parameter name is used with convention-based matching.
-For example, a parameter named `contactInfo` will match blocks named `contactInfo`,
-`contact-info`, `contact_info`, or `CONTACT_INFO`.
-
-Spring's `ConversionService` handles type coercion for all resolved values, so a parameter
-declared as `int` or `Integer` will be converted from the string value automatically.
+| Return Type | Behavior |
+|---|---|
+| `Response` | Returned as-is to Slack |
+| `String` | Wrapped in `Response.ok(text)` |
+| `void` | Auto-acknowledges with `ctx.ack()` |
+| Any other type | Serialized to JSON via `ctx.toJson()` and acknowledged |
 
 ### Mixing Annotated and Raw Parameters
 
