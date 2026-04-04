@@ -22,27 +22,15 @@ A working Slack app that demonstrates all features of the Bolt Spring Boot start
 
 ### 1. Create a Slack App
 
-1. Go to [api.slack.com/apps](https://api.slack.com/apps) and create a new app
-2. Under **OAuth & Permissions**, add these bot token scopes:
-   - `app_mentions:read`
-   - `channels:history`
-   - `chat:write`
-   - `commands`
-3. Install the app to your workspace
-4. Copy the **Bot User OAuth Token** and **Signing Secret**
+The easiest way is to use the included app manifest:
 
-### 2. Register Slash Commands
-
-Under **Slash Commands**, add:
-- `/hello` — Request URL: `https://your-domain/slack/events`
-- `/log` — Request URL: `https://your-domain/slack/events`
-- `/echo` — Request URL: `https://your-domain/slack/events`
-
-### 3. Enable Events and Interactivity
-
-- **Event Subscriptions**: Enable, set URL to `https://your-domain/slack/events`, subscribe to `app_mention`
-- **Interactivity & Shortcuts**: Enable, set URL to `https://your-domain/slack/events`
-- Add a **Global Shortcut** with callback ID `open-feedback-form`
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**
+2. Choose **From an app manifest**
+3. Select your workspace
+4. Paste the contents of [`manifest.json`](manifest.json)
+5. Review and create the app
+6. Under **Install App**, install to your workspace
+7. Copy the **Bot User OAuth Token** (`xoxb-...`) and **Signing Secret** (from **Basic Information**)
 
 ### 4. Run the App
 

@@ -1,0 +1,65 @@
+{
+  "display_information": {
+    "name": "Bolt Spring Boot Example",
+    "description": "Example Slack app demonstrating the Bolt Spring Boot starter",
+    "background_color": "#2c2d30"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Bolt Example",
+      "always_online": false
+    },
+    "shortcuts": [
+      {
+        "name": "Open Feedback Form",
+        "type": "global",
+        "callback_id": "open-feedback-form",
+        "description": "Opens a modal to submit feedback"
+      }
+    ],
+    "slash_commands": [
+      {
+        "command": "/hello",
+        "description": "Get a greeting",
+        "usage_hint": "",
+        "should_escape": false
+      },
+      {
+        "command": "/log",
+        "description": "Log a message (no visible response)",
+        "usage_hint": "[message]",
+        "should_escape": false
+      },
+      {
+        "command": "/echo",
+        "description": "Echo back your message",
+        "usage_hint": "[text]",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "app_mentions:read",
+        "channels:history",
+        "chat:write",
+        "commands"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "app_mention",
+        "message.channels"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": true
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
