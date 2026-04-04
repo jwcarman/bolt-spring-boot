@@ -27,7 +27,11 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
+/** Extracts the user name from the Slack request. */
 public final class UserNameParameterBinding implements ParameterBinding {
+
+  /** Creates a new {@code UserNameParameterBinding}. */
+  public UserNameParameterBinding() {}
 
   @Override
   public String resolve(Object request, Object context) {

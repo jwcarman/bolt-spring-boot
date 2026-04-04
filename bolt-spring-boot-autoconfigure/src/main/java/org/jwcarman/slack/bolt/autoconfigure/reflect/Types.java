@@ -3,17 +3,9 @@ package org.jwcarman.slack.bolt.autoconfigure.reflect;
 import java.lang.reflect.RecordComponent;
 import java.util.Map;
 
+/** Utility methods for reflective type operations. */
 public class Types {
 
-  /**
-   * Creates a new instance of the given record type using its canonical constructor.
-   *
-   * @param recordType the record class to instantiate
-   * @param components the record components (from {@code recordType.getRecordComponents()})
-   * @param args the constructor arguments, matching the components in order
-   * @return the new record instance
-   * @throws IllegalArgumentException if the record cannot be constructed
-   */
   /**
    * Creates a new instance of the given record type using its canonical constructor.
    *
@@ -58,6 +50,12 @@ public class Types {
 
   // -------------------------- STATIC METHODS --------------------------
 
+  /**
+   * Returns the default null/zero value for the given type, or {@code null} for reference types.
+   *
+   * @param type the class to get the null value for
+   * @return the default value for primitives, or {@code null} for reference types
+   */
   public static Object nullValue(Class<?> type) {
     return NULL_VALUES.getOrDefault(type, null);
   }

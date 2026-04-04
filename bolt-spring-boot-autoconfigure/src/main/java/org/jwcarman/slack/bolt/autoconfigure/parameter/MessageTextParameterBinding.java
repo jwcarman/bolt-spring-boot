@@ -19,7 +19,11 @@ import com.slack.api.app_backend.events.payload.EventsApiPayload;
 import com.slack.api.model.event.AppMentionEvent;
 import com.slack.api.model.event.MessageEvent;
 
+/** Extracts the message text from an event payload. */
 public final class MessageTextParameterBinding implements ParameterBinding {
+
+  /** Creates a new {@code MessageTextParameterBinding}. */
+  public MessageTextParameterBinding() {}
 
   @Override
   public String resolve(Object request, Object context) {

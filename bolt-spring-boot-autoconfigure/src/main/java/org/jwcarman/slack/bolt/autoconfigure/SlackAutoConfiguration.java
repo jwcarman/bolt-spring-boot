@@ -53,6 +53,9 @@ import com.slack.api.bolt.jakarta_servlet.SlackOAuthAppServlet;
 @ConditionalOnProperty(prefix = "slack", name = "signing-secret")
 public class SlackAutoConfiguration {
 
+  /** Creates a new {@code SlackAutoConfiguration}. */
+  public SlackAutoConfiguration() {}
+
   private static final Logger log = LoggerFactory.getLogger(SlackAutoConfiguration.class);
 
   /**

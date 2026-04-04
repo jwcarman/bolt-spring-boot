@@ -9,6 +9,13 @@ import org.jwcarman.slack.bolt.autoconfigure.reflect.Methods;
 import com.slack.api.bolt.context.Context;
 import com.slack.api.bolt.response.Response;
 
+/**
+ * Base class for method bindings that handles parameter resolution and method invocation.
+ *
+ * @param <T> the handler method return type
+ * @param <R> the request type
+ * @param <C> the context type
+ */
 public abstract class AbstractMethodBinding<T, R, C extends Context>
     implements MethodBinding<R, C> {
 
@@ -36,5 +43,12 @@ public abstract class AbstractMethodBinding<T, R, C extends Context>
     return toResponse(ctx, returnValue);
   }
 
+  /**
+   * Converts the handler method's return value to a Bolt Response.
+   *
+   * @param ctx the Bolt context
+   * @param returnValue the value returned by the handler method
+   * @return the Bolt response
+   */
   protected abstract Response toResponse(C ctx, T returnValue);
 }

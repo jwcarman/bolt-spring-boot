@@ -66,6 +66,10 @@ import com.slack.api.bolt.request.builtin.SlashCommandRequest;
 import com.slack.api.bolt.request.builtin.ViewClosedRequest;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 
+/**
+ * Scans for {@link SlackController}-annotated beans and registers their handler methods with the
+ * Bolt {@link App}.
+ */
 public class AnnotationDrivenAppCustomizer implements SlackAppCustomizer {
 
   private final ApplicationContext applicationContext;
