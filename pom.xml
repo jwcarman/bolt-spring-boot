@@ -66,7 +66,7 @@
         <!-- Dependency Versions -->
         <spring-boot.version>4.0.5</spring-boot.version>
         <slack-sdk.version>1.48.0</slack-sdk.version>
-        <junit-bom.version>6.0.3</junit-bom.version>
+        <junit-bom.version>6.1.0</junit-bom.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <required.maven.version>3.8</required.maven.version>
 
